@@ -1,0 +1,21 @@
+# Rust
+backend/target/
+backend/.env
+
+# Environment
+.env
+*.env.local
+
+# Frontend (React Native / Expo)
+frontend-user/node_modules/
+frontend-user/.expo/
+frontend-user/dist/
+frontend-user/.env
+frontend-admin/node_modules/
+frontend-admin/.expo/
+frontend-admin/dist/
+frontend-admin/.env
+
+# OS
+.DS_Store
+Thumbs.db
