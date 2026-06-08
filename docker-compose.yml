@@ -30,10 +30,10 @@ services:
       - ./backend/.env
     environment:
       DATABASE_URL: postgres://sportiva:sportiva@postgres:5432/sportiva
-      PORT: 3000
+      PORT: ${PORT:-3001}
       RUST_LOG: sportiva_backend=info,tower_http=info
     ports:
-      - "3000:3000"
+      - "${PORT:-3001}:${PORT:-3001}"
 
 volumes:
   postgres_data:

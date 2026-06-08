@@ -9,14 +9,42 @@ use axum::{
     http::{request::Parts, HeaderMap},
 };
 use rand::RngCore;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use sqlx::FromRow;
 use std::collections::HashSet;
 use std::time::Duration;
 use base64::Engine;
+use utoipa::ToSchema;
 
 const SESSION_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 7); // 7 days
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum ThemeMode {
+    Light,
+    Dark,
+    Auto,
+}
+
+impl ThemeMode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ThemeMode::Light => "light",
+            ThemeMode::Dark => "dark",
+            ThemeMode::Auto => "auto",
+        }
+    }
+
+    pub fn parse(value: &str) -> Option<Self> {
+        match value.trim().to_ascii_lowercase().as_str() {
+            "light" => Some(Self::Light),
+            "dark" => Some(Self::Dark),
+            "auto" => Some(Self::Auto),
+            _ => None,
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthUser {
@@ -24,6 +52,7 @@ pub struct AuthUser {
     pub email: String,
     pub name: String,
     pub role: String,
+    pub theme_mode: ThemeMode,
     pub session_id: uuid::Uuid,
     pub permissions: HashSet<String>,
 }
@@ -35,6 +64,7 @@ struct SessionRow {
     email: String,
     name: String,
     role: String,
+    theme_mode: String,
     permissions: Vec<String>,
 }
 
@@ -138,15 +168,17 @@ pub async fn authenticate_token(db: &sqlx::PgPool, token: &str) -> Result<Option
             u.email,
             u.name,
             u.role,
+            COALESCE(us.theme_mode, 'auto') AS theme_mode,
             COALESCE(array_remove(array_agg(p.name), NULL), '{}') AS permissions
         FROM sessions s
         JOIN users u ON u.id = s.user_id
+        LEFT JOIN user_settings us ON us.user_id = u.id
         LEFT JOIN role_permissions rp ON rp.role_name = u.role
         LEFT JOIN permissions p ON p.name = rp.permission_name
         WHERE s.token_hash = $1
           AND s.revoked_at IS NULL
           AND s.expires_at > NOW()
-        GROUP BY s.id, u.id
+        GROUP BY s.id, u.id, us.theme_mode
         "#,
     )
     .bind(token_hash)
@@ -158,9 +190,24 @@ pub async fn authenticate_token(db: &sqlx::PgPool, token: &str) -> Result<Option
         email: r.email,
         name: r.name,
         role: r.role,
+        theme_mode: ThemeMode::parse(&r.theme_mode).unwrap_or(ThemeMode::Auto),
         session_id: r.session_id,
         permissions: r.permissions.into_iter().collect(),
     }))
+}
+
+pub async fn ensure_user_settings(db: &sqlx::PgPool, user_id: uuid::Uuid) -> Result<()> {
+    sqlx::query(
+        r#"
+        INSERT INTO user_settings (user_id, theme_mode)
+        VALUES ($1, 'auto')
+        ON CONFLICT (user_id) DO NOTHING
+        "#,
+    )
+    .bind(user_id)
+    .execute(db)
+    .await?;
+    Ok(())
 }
 
 #[async_trait]
@@ -213,7 +260,7 @@ pub async fn bootstrap_admin_if_configured(db: &sqlx::PgPool) -> Result<()> {
 
     if exists {
         if update_password {
-            let password_hash = hash_password(&password)?;
+            let password_hash = hash_password(&password)?;            
             sqlx::query(
                 r#"
                 UPDATE users
@@ -225,6 +272,18 @@ pub async fn bootstrap_admin_if_configured(db: &sqlx::PgPool) -> Result<()> {
             .bind(password_hash)
             .execute(db)
             .await?;
+
+            let user_id = sqlx::query_scalar::<_, uuid::Uuid>(
+                r#"
+                SELECT id
+                FROM users
+                WHERE email = $1
+                "#,
+            )
+            .bind(&email)
+            .fetch_one(db)
+            .await?;
+            ensure_user_settings(db, user_id).await?;
 
             tracing::info!("Updated admin password via BOOTSTRAP_ADMIN_UPDATE_PASSWORD for: {}", email);
         }
@@ -244,6 +303,18 @@ pub async fn bootstrap_admin_if_configured(db: &sqlx::PgPool) -> Result<()> {
     .bind(password_hash)
     .execute(db)
     .await?;
+
+    let user_id = sqlx::query_scalar::<_, uuid::Uuid>(
+        r#"
+        SELECT id
+        FROM users
+        WHERE email = $1
+        "#,
+    )
+    .bind(&email)
+    .fetch_one(db)
+    .await?;
+    ensure_user_settings(db, user_id).await?;
 
     tracing::info!("Bootstrapped admin user: {}", email);
     Ok(())

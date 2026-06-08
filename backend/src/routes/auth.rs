@@ -3,7 +3,7 @@ use axum::{
     extract::State,
     http::StatusCode,
     http::HeaderMap,
-    routing::{get, post},
+    routing::{get, patch, post},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
@@ -37,6 +37,12 @@ pub struct UserInfo {
     pub email: String,
     pub name: String,
     pub role: String,
+    pub theme_mode: auth::ThemeMode,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct UpdateThemeModeRequest {
+    pub theme_mode: auth::ThemeMode,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -57,6 +63,7 @@ struct UserWithPasswordRow {
     name: String,
     role: String,
     password_hash: Option<String>,
+    theme_mode: Option<String>,
 }
 
 pub fn router() -> Router<AppState> {
@@ -65,6 +72,7 @@ pub fn router() -> Router<AppState> {
         .route("/login", post(login))
         .route("/logout", post(logout))
         .route("/me", get(me))
+        .route("/me/settings", patch(update_theme_mode))
         .route("/forgot-password", post(forgot_password))
         .route("/reset-password", post(reset_password))
 }
@@ -97,9 +105,19 @@ pub async fn register(
 
     let row = sqlx::query_as::<_, UserWithPasswordRow>(
         r#"
-        INSERT INTO users (email, name, role, password_hash)
-        VALUES ($1, $2, 'user', $3)
-        RETURNING id, email, name, role, password_hash
+        WITH new_user AS (
+            INSERT INTO users (email, name, role, password_hash)
+            VALUES ($1, $2, 'user', $3)
+            RETURNING id, email, name, role, password_hash
+        )
+        SELECT
+            nu.id,
+            nu.email,
+            nu.name,
+            nu.role,
+            nu.password_hash,
+            'auto' AS theme_mode
+        FROM new_user nu
         "#,
     )
     .bind(payload.email)
@@ -117,6 +135,8 @@ pub async fn register(
         AppError::Database(e)
     })?;
 
+    auth::ensure_user_settings(&state.db, row.id).await?;
+
     Ok((
         StatusCode::CREATED,
         Json(UserInfo {
@@ -124,6 +144,7 @@ pub async fn register(
             email: row.email,
             name: row.name,
             role: row.role,
+            theme_mode: auth::ThemeMode::Auto,
         }),
     ))
 }
@@ -144,9 +165,16 @@ pub async fn login(
 ) -> Result<Json<LoginResponse>> {
     let user = sqlx::query_as::<_, UserWithPasswordRow>(
         r#"
-        SELECT id, email, name, role, password_hash
-        FROM users
-        WHERE email = $1
+        SELECT
+            u.id,
+            u.email,
+            u.name,
+            u.role,
+            u.password_hash,
+            COALESCE(us.theme_mode, 'auto') AS theme_mode
+        FROM users u
+        LEFT JOIN user_settings us ON us.user_id = u.id
+        WHERE u.email = $1
         "#,
     )
     .bind(payload.email)
@@ -171,6 +199,8 @@ pub async fn login(
             email: user.email,
             name: user.name,
             role: user.role,
+            theme_mode: auth::ThemeMode::parse(user.theme_mode.as_deref().unwrap_or("auto"))
+                .unwrap_or(auth::ThemeMode::Auto),
         },
     }))
 }
@@ -205,6 +235,46 @@ pub async fn me(user: auth::AuthUser) -> Result<Json<UserInfo>> {
         email: user.email,
         name: user.name,
         role: user.role,
+        theme_mode: user.theme_mode,
+    }))
+}
+
+#[utoipa::path(
+    patch,
+    path = "/api/v1/auth/me/settings",
+    request_body = UpdateThemeModeRequest,
+    responses(
+        (status = 200, description = "Theme updated", body = UserInfo),
+        (status = 400, description = "Invalid theme mode")
+    ),
+    security(("bearer_auth" = [])),
+    tag = "Auth"
+)]
+pub async fn update_theme_mode(
+    user: auth::AuthUser,
+    State(state): State<AppState>,
+    Json(payload): Json<UpdateThemeModeRequest>,
+) -> Result<Json<UserInfo>> {
+    let theme_mode = payload.theme_mode;
+    sqlx::query(
+        r#"
+        INSERT INTO user_settings (user_id, theme_mode)
+        VALUES ($1, $2)
+        ON CONFLICT (user_id)
+        DO UPDATE SET theme_mode = EXCLUDED.theme_mode, updated_at = NOW()
+        "#,
+    )
+    .bind(user.id)
+    .bind(theme_mode.as_str())
+    .execute(&state.db)
+    .await?;
+
+    Ok(Json(UserInfo {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        theme_mode,
     }))
 }
 
@@ -226,9 +296,16 @@ pub async fn forgot_password(
 
     let user = sqlx::query_as::<_, UserWithPasswordRow>(
         r#"
-        SELECT id, email, name, role, password_hash
-        FROM users
-        WHERE email = $1
+        SELECT
+            u.id,
+            u.email,
+            u.name,
+            u.role,
+            u.password_hash,
+            COALESCE(us.theme_mode, 'auto') AS theme_mode
+        FROM users u
+        LEFT JOIN user_settings us ON us.user_id = u.id
+        WHERE u.email = $1
         "#,
     )
     .bind(&email)

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Abstract monochrome illustration</title>
+  <desc id="desc">Soft black and white shapes for the login panel.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111111"/>
+      <stop offset="55%" stop-color="#444444"/>
+      <stop offset="100%" stop-color="#888888"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <circle cx="560" cy="240" r="270" fill="url(#glow)"/>
+  <circle cx="160" cy="760" r="220" fill="#ffffff" fill-opacity="0.08"/>
+  <circle cx="650" cy="800" r="160" fill="#ffffff" fill-opacity="0.06"/>
+  <path d="M90 680C170 560 290 500 430 500c154 0 254 73 320 188v312H90V680Z" fill="#ffffff" fill-opacity="0.11"/>
+  <path d="M130 700c72-82 176-126 303-126 145 0 240 54 287 159v229H130V700Z" fill="#ffffff" fill-opacity="0.08"/>
+  <rect x="132" y="162" width="268" height="42" rx="21" fill="#ffffff" fill-opacity="0.16"/>
+  <rect x="132" y="224" width="196" height="28" rx="14" fill="#ffffff" fill-opacity="0.12"/>
+  <rect x="132" y="620" width="536" height="74" rx="24" fill="#ffffff" fill-opacity="0.14"/>
+  <rect x="132" y="720" width="430" height="18" rx="9" fill="#ffffff" fill-opacity="0.18"/>
+  <rect x="132" y="752" width="326" height="18" rx="9" fill="#ffffff" fill-opacity="0.14"/>
+</svg>

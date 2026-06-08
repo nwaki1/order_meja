@@ -1,6 +1,5 @@
 use anyhow::Context;
 use axum::{routing::get, Router};
-use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
@@ -36,9 +35,7 @@ async fn main() -> anyhow::Result<()> {
 
     let database_url = std::env::var("DATABASE_URL").context("DATABASE_URL must be set")?;
 
-    let pool = PgPoolOptions::new()
-        .max_connections(10)
-        .connect(&database_url)
+    let pool = db::create_pool(&database_url)
         .await
         .context("Failed to connect to database")?;
 

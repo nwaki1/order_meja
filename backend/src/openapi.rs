@@ -3,7 +3,7 @@ use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 
 use crate::routes::health::HealthResponse;
 use crate::routes::auth::{
-    ForgotPasswordRequest, LoginRequest, LoginResponse, RegisterRequest, ResetPasswordRequest, UserInfo,
+    ForgotPasswordRequest, LoginRequest, LoginResponse, RegisterRequest, ResetPasswordRequest, UpdateThemeModeRequest, UserInfo,
 };
 use crate::routes::admin::AdminPingResponse;
 
@@ -33,6 +33,7 @@ impl Modify for SecurityAddon {
         crate::routes::auth::register,
         crate::routes::auth::logout,
         crate::routes::auth::me,
+        crate::routes::auth::update_theme_mode,
         crate::routes::auth::forgot_password,
         crate::routes::auth::reset_password,
         crate::routes::admin::ping,
@@ -43,6 +44,7 @@ impl Modify for SecurityAddon {
         LoginResponse,
         RegisterRequest,
         UserInfo,
+        UpdateThemeModeRequest,
         ForgotPasswordRequest,
         ResetPasswordRequest,
         AdminPingResponse
