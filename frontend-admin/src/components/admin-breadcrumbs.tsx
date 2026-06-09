@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 
 import {
@@ -18,6 +19,10 @@ const RESOURCE_LABELS: Record<string, ResourceConfig> = {
   users: {
     plural: 'Users',
     singular: 'User',
+  },
+  roles: {
+    plural: 'Roles',
+    singular: 'Role',
   },
 }
 
@@ -100,18 +105,22 @@ export function AdminBreadcrumbs() {
           const isLast = index === crumbs.length - 1
 
           return (
-            <BreadcrumbItem key={`${crumb.label}-${index}`}>
-              {isLast || !crumb.to ? (
-                <BreadcrumbPage className="text-[var(--sea-ink)]">
-                  {crumb.label}
-                </BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink asChild className="text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]">
-                  <Link to={crumb.to}>{crumb.label}</Link>
-                </BreadcrumbLink>
-              )}
-              {!isLast ? <BreadcrumbSeparator className="text-[var(--sea-ink-soft)]" /> : null}
-            </BreadcrumbItem>
+            <Fragment key={`${crumb.label}-${index}`}>
+              <BreadcrumbItem>
+                {isLast || !crumb.to ? (
+                  <BreadcrumbPage className="text-[var(--sea-ink)]">
+                    {crumb.label}
+                  </BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink asChild className="text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]">
+                    <Link to={crumb.to}>{crumb.label}</Link>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+              {!isLast ? (
+                <BreadcrumbSeparator className="text-[var(--sea-ink-soft)]" />
+              ) : null}
+            </Fragment>
           )
         })}
       </BreadcrumbList>

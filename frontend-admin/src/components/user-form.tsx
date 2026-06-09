@@ -43,6 +43,7 @@ export function UserForm({
     role: initialData?.role ?? 'user',
     password: '',
   })
+  const [submitAttempted, setSubmitAttempted] = React.useState(false)
 
   // Sync when initialData arrives (e.g. after fetch resolves)
   React.useEffect(() => {
@@ -57,17 +58,29 @@ export function UserForm({
   }, [initialData?.id, mode])
 
   const disabled = mode === 'view' || submitting
+  const requiresPassword = mode === 'create'
+  const validationErrors = {
+    name: !form.name.trim() ? 'Required' : '',
+    email: !form.email.trim() ? 'Required' : '',
+    role: !form.role.trim() ? 'Required' : '',
+    password: requiresPassword && !form.password.trim() ? 'Required' : '',
+  }
+  const hasValidationError = Object.values(validationErrors).some(Boolean)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setSubmitAttempted(true)
+    if (hasValidationError) return
     onSubmit?.(form)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
+    <form noValidate onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
       {/* Name */}
-      <div className="space-y-1.5">
-        <Label htmlFor="uf-name">Nama</Label>
+      <div>
+        <Label htmlFor="uf-name">
+          Nama<span className="text-destructive">*</span>
+        </Label>
         <Input
           id="uf-name"
           placeholder="John Doe"
@@ -76,11 +89,16 @@ export function UserForm({
           disabled={disabled}
           required={mode !== 'view'}
         />
+        {submitAttempted && validationErrors.name ? (
+          <p className="text-right text-sm text-destructive">{validationErrors.name}</p>
+        ) : null}
       </div>
 
       {/* Email */}
       <div className="space-y-1.5">
-        <Label htmlFor="uf-email">Email</Label>
+        <Label htmlFor="uf-email">
+          Email<span className="text-destructive">*</span>
+        </Label>
         <Input
           id="uf-email"
           type="email"
@@ -90,11 +108,16 @@ export function UserForm({
           disabled={disabled}
           required={mode !== 'view'}
         />
+        {submitAttempted && validationErrors.email ? (
+          <p className="text-right text-sm text-destructive">{validationErrors.email}</p>
+        ) : null}
       </div>
 
       {/* Role */}
       <div className="space-y-1.5">
-        <Label htmlFor="uf-role">Role</Label>
+        <Label htmlFor="uf-role">
+          Role<span className="text-destructive">*</span>
+        </Label>
         {mode === 'view' ? (
           <Input id="uf-role" value={form.role} disabled />
         ) : (
@@ -112,6 +135,9 @@ export function UserForm({
             </SelectContent>
           </Select>
         )}
+        {submitAttempted && validationErrors.role ? (
+          <p className="text-right text-sm text-destructive">{validationErrors.role}</p>
+        ) : null}
       </div>
 
       {/* Password — hidden in view mode */}
@@ -119,6 +145,9 @@ export function UserForm({
         <div className="space-y-1.5">
           <Label htmlFor="uf-password">
             Password
+            {requiresPassword ? (
+              <span className="text-destructive">*</span>
+            ) : null}
             {mode === 'edit' && (
               <span className="ml-1 text-xs text-muted-foreground">
                 (kosongkan jika tidak ingin diubah)
@@ -135,6 +164,9 @@ export function UserForm({
             minLength={mode === 'create' ? 8 : undefined}
             disabled={submitting}
           />
+          {submitAttempted && validationErrors.password ? (
+            <p className="text-right text-sm text-destructive">{validationErrors.password}</p>
+          ) : null}
         </div>
       )}
 

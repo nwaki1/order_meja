@@ -12,10 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
+import { Route as RolesIndexRouteImport } from './routes/roles/index'
 import { Route as UsersNewRouteImport } from './routes/users/new'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
+import { Route as RolesNewRouteImport } from './routes/roles/new'
+import { Route as RolesRoleNameRouteImport } from './routes/roles/$roleName'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
+import { Route as RolesRoleNameIndexRouteImport } from './routes/roles/$roleName/index'
 import { Route as UsersUserIdEditRouteImport } from './routes/users/$userId/edit'
+import { Route as RolesRoleNameEditRouteImport } from './routes/roles/$roleName/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -32,6 +37,11 @@ const UsersIndexRoute = UsersIndexRouteImport.update({
   path: '/users/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RolesIndexRoute = RolesIndexRouteImport.update({
+  id: '/roles/',
+  path: '/roles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsersNewRoute = UsersNewRouteImport.update({
   id: '/users/new',
   path: '/users/new',
@@ -42,42 +52,76 @@ const UsersUserIdRoute = UsersUserIdRouteImport.update({
   path: '/users/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RolesNewRoute = RolesNewRouteImport.update({
+  id: '/roles/new',
+  path: '/roles/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RolesRoleNameRoute = RolesRoleNameRouteImport.update({
+  id: '/roles/$roleName',
+  path: '/roles/$roleName',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsersUserIdIndexRoute = UsersUserIdIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => UsersUserIdRoute,
+} as any)
+const RolesRoleNameIndexRoute = RolesRoleNameIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RolesRoleNameRoute,
 } as any)
 const UsersUserIdEditRoute = UsersUserIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
   getParentRoute: () => UsersUserIdRoute,
 } as any)
+const RolesRoleNameEditRoute = RolesRoleNameEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => RolesRoleNameRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
+  '/roles/new': typeof RolesNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
+  '/roles/': typeof RolesIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/roles/$roleName/': typeof RolesRoleNameIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/roles/new': typeof RolesNewRoute
   '/users/new': typeof UsersNewRoute
+  '/roles': typeof RolesIndexRoute
   '/users': typeof UsersIndexRoute
+  '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/roles/$roleName': typeof RolesRoleNameIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
+  '/roles/new': typeof RolesNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
+  '/roles/': typeof RolesIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/roles/$roleName/': typeof RolesRoleNameIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -85,35 +129,52 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/roles/$roleName'
+    | '/roles/new'
     | '/users/$userId'
     | '/users/new'
+    | '/roles/'
     | '/users/'
+    | '/roles/$roleName/edit'
     | '/users/$userId/edit'
+    | '/roles/$roleName/'
     | '/users/$userId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/roles/new'
     | '/users/new'
+    | '/roles'
     | '/users'
+    | '/roles/$roleName/edit'
     | '/users/$userId/edit'
+    | '/roles/$roleName'
     | '/users/$userId'
   id:
     | '__root__'
     | '/'
     | '/login'
+    | '/roles/$roleName'
+    | '/roles/new'
     | '/users/$userId'
     | '/users/new'
+    | '/roles/'
     | '/users/'
+    | '/roles/$roleName/edit'
     | '/users/$userId/edit'
+    | '/roles/$roleName/'
     | '/users/$userId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  RolesRoleNameRoute: typeof RolesRoleNameRouteWithChildren
+  RolesNewRoute: typeof RolesNewRoute
   UsersUserIdRoute: typeof UsersUserIdRouteWithChildren
   UsersNewRoute: typeof UsersNewRoute
+  RolesIndexRoute: typeof RolesIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
 }
 
@@ -140,6 +201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/roles/': {
+      id: '/roles/'
+      path: '/roles'
+      fullPath: '/roles/'
+      preLoaderRoute: typeof RolesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/new': {
       id: '/users/new'
       path: '/users/new'
@@ -154,12 +222,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/roles/new': {
+      id: '/roles/new'
+      path: '/roles/new'
+      fullPath: '/roles/new'
+      preLoaderRoute: typeof RolesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roles/$roleName': {
+      id: '/roles/$roleName'
+      path: '/roles/$roleName'
+      fullPath: '/roles/$roleName'
+      preLoaderRoute: typeof RolesRoleNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/$userId/': {
       id: '/users/$userId/'
       path: '/'
       fullPath: '/users/$userId/'
       preLoaderRoute: typeof UsersUserIdIndexRouteImport
       parentRoute: typeof UsersUserIdRoute
+    }
+    '/roles/$roleName/': {
+      id: '/roles/$roleName/'
+      path: '/'
+      fullPath: '/roles/$roleName/'
+      preLoaderRoute: typeof RolesRoleNameIndexRouteImport
+      parentRoute: typeof RolesRoleNameRoute
     }
     '/users/$userId/edit': {
       id: '/users/$userId/edit'
@@ -168,8 +257,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdEditRouteImport
       parentRoute: typeof UsersUserIdRoute
     }
+    '/roles/$roleName/edit': {
+      id: '/roles/$roleName/edit'
+      path: '/edit'
+      fullPath: '/roles/$roleName/edit'
+      preLoaderRoute: typeof RolesRoleNameEditRouteImport
+      parentRoute: typeof RolesRoleNameRoute
+    }
   }
 }
+
+interface RolesRoleNameRouteChildren {
+  RolesRoleNameEditRoute: typeof RolesRoleNameEditRoute
+  RolesRoleNameIndexRoute: typeof RolesRoleNameIndexRoute
+}
+
+const RolesRoleNameRouteChildren: RolesRoleNameRouteChildren = {
+  RolesRoleNameEditRoute: RolesRoleNameEditRoute,
+  RolesRoleNameIndexRoute: RolesRoleNameIndexRoute,
+}
+
+const RolesRoleNameRouteWithChildren = RolesRoleNameRoute._addFileChildren(
+  RolesRoleNameRouteChildren,
+)
 
 interface UsersUserIdRouteChildren {
   UsersUserIdEditRoute: typeof UsersUserIdEditRoute
@@ -188,8 +298,11 @@ const UsersUserIdRouteWithChildren = UsersUserIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  RolesRoleNameRoute: RolesRoleNameRouteWithChildren,
+  RolesNewRoute: RolesNewRoute,
   UsersUserIdRoute: UsersUserIdRouteWithChildren,
   UsersNewRoute: UsersNewRoute,
+  RolesIndexRoute: RolesIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
 }
 export const routeTree = rootRouteImport

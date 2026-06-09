@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link, useRouter, useRouterState } from '@tanstack/react-router'
-import { LayoutDashboard, LogOut, Users } from 'lucide-react'
+import { LayoutDashboard, LogOut, Shield, Users } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
 import { Avatar, AvatarFallback } from '#/components/ui/avatar.tsx'
@@ -30,6 +30,12 @@ const mainNav = [
     title: 'Users',
     to: '/users',
     icon: Users,
+    end: false,
+  },
+  {
+    title: 'Roles',
+    to: '/roles',
+    icon: Shield,
     end: false,
   },
 ]
