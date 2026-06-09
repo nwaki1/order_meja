@@ -91,11 +91,11 @@
   --link-bg-hover: rgba(40, 40, 40, 0.88);
   --hero-a: rgba(255, 255, 255, 0.12);
   --hero-b: rgba(255, 255, 255, 0.07);
-  --button-bright-bg: #ffffff;
-  --button-bright-fg: #111111;
-  --button-bright-border: rgba(255, 255, 255, 0.18);
-  --button-bright-hover-bg: #dcdcdc;
-  --button-bright-hover-fg: #000000;
+  --button-bright-bg: #111111;
+  --button-bright-fg: #ffffff;
+  --button-bright-border: rgba(255, 255, 255, 0.12);
+  --button-bright-hover-bg: #242424;
+  --button-bright-hover-fg: #ffffff;
   --sidebar-hover-bg: rgba(255, 255, 255, 0.12);
   --sidebar-hover-fg: #ffffff;
   --sidebar-active-bg: rgba(255, 255, 255, 0.16);

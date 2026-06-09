@@ -31,8 +31,10 @@ function getThemeIcon(mode: ThemeMode) {
 
 export default function ThemeToggle({
   className,
+  iconOnly = false,
 }: {
   className?: string
+  iconOnly?: boolean
 }) {
   const { themeMode, setThemeMode } = useAuth()
   const [isSaving, setIsSaving] = React.useState(false)
@@ -62,6 +64,7 @@ export default function ThemeToggle({
       disabled={isSaving}
       className={cn(
         'inline-flex items-center gap-2 rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] shadow-[0_8px_22px_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70',
+        iconOnly && 'justify-center gap-0 px-0',
         className,
       )}
     >
@@ -70,7 +73,9 @@ export default function ThemeToggle({
       ) : (
         <Icon className="size-4" />
       )}
-      <span>{themeMode === 'auto' ? 'Auto' : themeMode === 'dark' ? 'Dark' : 'Light'}</span>
+      {!iconOnly && (
+        <span>{themeMode === 'auto' ? 'Auto' : themeMode === 'dark' ? 'Dark' : 'Light'}</span>
+      )}
     </button>
   )
 }

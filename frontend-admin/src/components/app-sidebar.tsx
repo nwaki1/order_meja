@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from '#/components/ui/sidebar.tsx'
 import { cn } from '#/lib/utils.ts'
 
@@ -34,6 +35,7 @@ const mainNav = [
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { state } = useSidebar()
   const router = useRouter()
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
@@ -58,21 +60,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <div className="rounded-xl border border-sidebar-border bg-sidebar-accent/40 px-3 py-3">
-          <div className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-lg border border-sidebar-border bg-sidebar-primary text-sidebar-primary-foreground">
-              <span className="text-xs font-bold tracking-[0.2em]">SA</span>
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-sidebar-foreground">
-                Admin
-              </p>
-              <p className="truncate text-xs text-sidebar-foreground/70">
-                Monochrome admin shell
-              </p>
-            </div>
-          </div>
-        </div>
+        <Link
+          to="/"
+          className="flex items-center rounded-xl border border-sidebar-border bg-sidebar-accent/40 px-3 py-3 no-underline transition-opacity hover:opacity-90"
+        >
+          <img
+            src="/sidebar-logo.png"
+            alt="Sportiva"
+            className="h-8 w-auto object-contain dark:invert"
+          />
+        </Link>
       </SidebarHeader>
 
       <SidebarContent className="px-2">
@@ -97,16 +94,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="rounded-xl border border-sidebar-border bg-sidebar-accent/30 p-2">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <div className="flex items-center gap-2 px-2 py-1.5">
+        <div
+          className={cn(
+            'rounded-xl border border-sidebar-border bg-sidebar-accent/30 p-2.5',
+            state === 'collapsed' && 'px-2 py-2.5',
+          )}
+        >
+          <div className="space-y-3">
+            <div
+              className={cn(
+                'flex items-center gap-2.5 rounded-xl px-1 py-1',
+                state === 'collapsed' && 'justify-center px-0',
+              )}
+            >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarFallback className="rounded-lg bg-sidebar-primary text-[10px] font-bold text-sidebar-primary-foreground">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
-                <div className="min-w-0 flex-1 text-left">
+                <div
+                  className={cn(
+                    'min-w-0 flex-1 text-left',
+                    state === 'collapsed' && 'hidden',
+                  )}
+                >
                   <p className="truncate text-sm font-semibold text-sidebar-foreground">
                     {user?.name ?? 'Admin'}
                   </p>
@@ -114,20 +125,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {user?.email ?? 'signed in'}
                   </p>
                 </div>
+            </div>
+
+            <div className="space-y-2">
+              <div
+                className={cn(
+                  'flex',
+                  state === 'collapsed' ? 'justify-center' : 'w-full',
+                )}
+              >
+                <ThemeToggle
+                  iconOnly={state === 'collapsed'}
+                  className={cn(
+                    'rounded-xl border-sidebar-border bg-sidebar text-sidebar-foreground shadow-none',
+                    state === 'collapsed'
+                      ? 'size-10'
+                      : 'h-10 w-full justify-start px-3'
+                  )}
+                />
               </div>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <div className="px-2 pb-1">
-                <ThemeToggle className="w-full justify-start rounded-xl px-3 py-2.5" />
-              </div>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Logout" className="h-10" onClick={handleLogout}>
+              <SidebarMenuButton
+                tooltip="Logout"
+                className={cn(
+                  'h-10 rounded-xl',
+                  state === 'collapsed' ? 'w-10 justify-center px-0 mx-auto' : 'w-full justify-start'
+                )}
+                onClick={handleLogout}
+              >
                 <LogOut />
-                <span>Logout</span>
+                {state !== 'collapsed' && <span>Logout</span>}
               </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+            </div>
+          </div>
         </div>
       </SidebarFooter>
 
