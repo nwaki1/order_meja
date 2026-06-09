@@ -6,7 +6,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table'
-import { ChevronDown, ChevronUp, ChevronsUpDown, Eye, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, ChevronsUpDown, Eye, Plus, Trash2, X } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
 import { Button } from '#/components/ui/button.tsx'
@@ -46,6 +46,12 @@ function UsersPage() {
   // ── Search: input immediate, query debounced
   const [searchInput, setSearchInput] = React.useState('')
   const [searchQuery, setSearchQuery] = React.useState('')
+
+  function clearSearch() {
+    setSearchInput('')
+    setSearchQuery('')
+    setPagination((p) => ({ ...p, pageIndex: 0 }))
+  }
 
   React.useEffect(() => {
     const t = setTimeout(() => {
@@ -253,12 +259,26 @@ function UsersPage() {
 
       {/* Search */}
       <div className="flex items-center gap-3">
-        <Input
-          placeholder="Cari nama atau email..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          className="max-w-xs"
-        />
+        <div className="relative max-w-xs">
+          <Input
+            placeholder="Cari nama atau email..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="pr-9"
+          />
+          {searchInput && (
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="ghost"
+              onClick={clearSearch}
+              aria-label="Clear search"
+              className="absolute right-1 top-1/2 -translate-y-1/2 text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]"
+            >
+              <X className="size-4" />
+            </Button>
+          )}
+        </div>
         {loading && (
           <span className="animate-pulse text-xs text-[var(--sea-ink-soft)]">Memuat...</span>
         )}

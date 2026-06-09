@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
@@ -118,7 +118,7 @@
 }
 
 @theme inline {
-  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -217,6 +217,7 @@ a:hover {
 }
 
 code {
+  font-family: var(--font-sans);
   font-size: 0.9em;
   border: 1px solid var(--line);
   background: color-mix(in oklab, var(--surface-strong) 82%, white 18%);
@@ -246,7 +247,7 @@ pre code {
 }
 
 .display-title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-sans);
 }
 
 .island-shell {
@@ -340,8 +341,21 @@ a {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    font-family: var(--font-sans);
+  }
   body {
     background-color: var(--background);
     color: var(--foreground);
+  }
+  input,
+  button,
+  select,
+  textarea,
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: inherit;
   }
 }
