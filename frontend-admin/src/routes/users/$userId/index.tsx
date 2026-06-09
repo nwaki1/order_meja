@@ -3,6 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowLeft, Pencil, Trash2, X } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
+import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { UserForm } from '#/components/user-form.tsx'
 import { deleteUser, getUser } from '#/lib/users.ts'
@@ -57,7 +58,7 @@ function UserDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-lg space-y-6">
+      <div className="space-y-6">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon-sm" asChild>
             <Link to="/users"><ArrowLeft /></Link>
@@ -78,7 +79,7 @@ function UserDetailPage() {
 
   if (loadError || !user) {
     return (
-      <div className="mx-auto max-w-lg space-y-4">
+      <div className="space-y-4">
         <Button variant="ghost" size="icon-sm" asChild>
           <Link to="/users"><ArrowLeft /></Link>
         </Button>
@@ -88,7 +89,7 @@ function UserDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -97,7 +98,9 @@ function UserDetailPage() {
           </Button>
           <div>
             <h2 className="text-lg font-semibold text-[var(--sea-ink)]">Detail User</h2>
-            <p className="text-sm text-[var(--sea-ink-soft)]">{user.email}</p>
+            <div className="mt-1">
+              <AdminBreadcrumbs />
+            </div>
           </div>
         </div>
 

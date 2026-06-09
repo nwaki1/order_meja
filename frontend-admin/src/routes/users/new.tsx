@@ -3,6 +3,7 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
+import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { UserForm } from '#/components/user-form.tsx'
 import type { UserFormData } from '#/components/user-form.tsx'
@@ -40,7 +41,7 @@ function NewUserPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon-sm" asChild>
@@ -50,7 +51,9 @@ function NewUserPage() {
         </Button>
         <div>
           <h2 className="text-lg font-semibold text-[var(--sea-ink)]">Tambah User</h2>
-          <p className="text-sm text-[var(--sea-ink-soft)]">Buat akun pengguna baru</p>
+          <div className="mt-1">
+            <AdminBreadcrumbs />
+          </div>
         </div>
       </div>
 

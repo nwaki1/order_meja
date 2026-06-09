@@ -3,6 +3,7 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
+import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { UserForm } from '#/components/user-form.tsx'
 import type { UserFormData } from '#/components/user-form.tsx'
@@ -62,7 +63,7 @@ function UserEditPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-lg space-y-6">
+      <div className="space-y-6">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon-sm" asChild>
             <Link to="/users/$userId" params={{ userId }}>
@@ -85,7 +86,7 @@ function UserEditPage() {
 
   if (loadError || !user) {
     return (
-      <div className="mx-auto max-w-lg space-y-4">
+      <div className="space-y-4">
         <Button variant="ghost" size="icon-sm" asChild>
           <Link to="/users/$userId" params={{ userId }}>
             <ArrowLeft />
@@ -97,7 +98,7 @@ function UserEditPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon-sm" asChild>
@@ -107,7 +108,9 @@ function UserEditPage() {
         </Button>
         <div>
           <h2 className="text-lg font-semibold text-[var(--sea-ink)]">Edit User</h2>
-          <p className="text-sm text-[var(--sea-ink-soft)]">{user.email}</p>
+          <div className="mt-1">
+            <AdminBreadcrumbs />
+          </div>
         </div>
       </div>
 

@@ -64,7 +64,7 @@ export function UserForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
       {/* Name */}
       <div className="space-y-1.5">
         <Label htmlFor="uf-name">Nama</Label>
@@ -155,14 +155,14 @@ export function UserForm({
 
       {/* Error */}
       {error && (
-        <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive md:col-span-2">
           {error}
         </p>
       )}
 
       {/* Actions — hidden in view mode (parent handles view actions) */}
       {mode !== 'view' && (
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 pt-2 md:col-span-2">
           {onCancel && (
             <Button
               type="button"

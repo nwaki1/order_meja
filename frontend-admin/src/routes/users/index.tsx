@@ -9,6 +9,7 @@ import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-t
 import { ChevronDown, ChevronUp, ChevronsUpDown, Eye, Plus, Trash2, X } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
+import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { Input } from '#/components/ui/input.tsx'
 import {
@@ -242,7 +243,9 @@ function UsersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-[var(--sea-ink)]">Users</h2>
-          <p className="text-sm text-[var(--sea-ink-soft)]">Kelola akun pengguna</p>
+          <div className="mt-1">
+            <AdminBreadcrumbs />
+          </div>
         </div>
         <Button
           size="sm"
