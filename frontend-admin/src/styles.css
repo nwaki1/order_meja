@@ -35,6 +35,8 @@
   --sidebar-hover-fg: oklch(0.21 0.006 285.885);
   --sidebar-active-bg: oklch(0.967 0.001 286.375);
   --sidebar-active-fg: oklch(0.21 0.006 285.885);
+  --theme-transition-duration: 240ms;
+  --theme-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -194,6 +196,11 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing),
+    border-color var(--theme-transition-duration) var(--theme-transition-easing),
+    box-shadow var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 body::before {
@@ -207,6 +214,9 @@ body::before {
     radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.8), transparent 34%),
     radial-gradient(circle at 78% 26%, rgba(0, 0, 0, 0.14), transparent 42%),
     radial-gradient(circle at 42% 82%, rgba(0, 0, 0, 0.09), transparent 36%);
+  transition:
+    opacity var(--theme-transition-duration) var(--theme-transition-easing),
+    background-color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 body::after {
@@ -221,6 +231,9 @@ body::after {
     linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%);
+  transition:
+    opacity var(--theme-transition-duration) var(--theme-transition-easing),
+    background-color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 a {
@@ -296,6 +309,14 @@ button,
 a {
   transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease,
     transform 180ms ease;
+}
+
+html.theme-animating *,
+html.theme-animating *::before,
+html.theme-animating *::after {
+  transition-property: background-color, color, border-color, box-shadow, fill, stroke, opacity;
+  transition-duration: var(--theme-transition-duration);
+  transition-timing-function: var(--theme-transition-easing);
 }
 
 .island-kicker {

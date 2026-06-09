@@ -45,6 +45,10 @@ export default function ThemeToggle({
   async function handleClick() {
     setIsSaving(true)
     try {
+      document.documentElement.classList.add('theme-animating')
+      window.setTimeout(() => {
+        document.documentElement.classList.remove('theme-animating')
+      }, 320)
       await setThemeMode(nextMode)
     } catch {
       // Theme save failures are non-blocking; the provider keeps the previous mode.
