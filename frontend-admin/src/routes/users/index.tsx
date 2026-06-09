@@ -247,8 +247,7 @@ function UsersPage() {
         <Button
           size="sm"
           asChild
-          variant="outline"
-          className="border-[var(--line)] bg-white/70 text-[var(--sea-ink)] hover:bg-[rgba(0,0,0,0.04)] dark:bg-[rgba(24,24,24,0.7)]"
+          variant="bright"
         >
           <Link to="/users/new">
             <Plus />

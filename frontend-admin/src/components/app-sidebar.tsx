@@ -17,6 +17,7 @@ import {
 } from '#/components/ui/sidebar.tsx'
 import { cn } from '#/lib/utils.ts'
 
+// <-- Daftar item menu sidebar dibuat di sini -->
 const mainNav = [
   {
     title: 'Dashboard',
@@ -76,6 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarContent className="px-2">
         <SidebarMenu className="gap-1.5">
+          {/* <-- Item sidebar dirender di sini dari mainNav --> */}
           {mainNav.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
