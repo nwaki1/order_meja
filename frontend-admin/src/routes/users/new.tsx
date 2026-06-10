@@ -7,6 +7,7 @@ import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { UserForm } from '#/components/user-form.tsx'
 import type { UserFormData } from '#/components/user-form.tsx'
+import { ApiError, type ApiFieldErrors } from '#/lib/api.ts'
 import { createUser } from '#/lib/users.ts'
 
 export const Route = createFileRoute('/users/new')({
@@ -19,11 +20,13 @@ function NewUserPage() {
   const accessToken = session?.accessToken
 
   const [error, setError] = React.useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = React.useState<ApiFieldErrors>({})
   const [submitting, setSubmitting] = React.useState(false)
 
   async function handleSubmit(data: UserFormData) {
     if (!accessToken) return
     setError(null)
+    setFieldErrors({})
     setSubmitting(true)
     try {
       await createUser(accessToken, {
@@ -34,7 +37,12 @@ function NewUserPage() {
       })
       router.navigate({ to: '/users' })
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Terjadi kesalahan')
+      if (e instanceof ApiError) {
+        setError(e.message)
+        setFieldErrors(e.fieldErrors ?? {})
+      } else {
+        setError(e instanceof Error ? e.message : 'Terjadi kesalahan')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -62,6 +70,7 @@ function NewUserPage() {
         <UserForm
           mode="create"
           error={error}
+          fieldErrors={fieldErrors}
           submitting={submitting}
           onSubmit={handleSubmit}
           onCancel={() => router.navigate({ to: '/users' })}

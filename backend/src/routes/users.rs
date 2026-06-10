@@ -209,16 +209,32 @@ async fn create_user(
     auth::require_role(&user, "admin")?;
 
     if body.email.trim().is_empty() {
-        return Err(AppError::BadRequest("email wajib diisi".into()));
+        return Err(AppError::validation(
+            "Lengkapi field yang required atau isi teks yang sesuai.",
+            "email",
+            "Email wajib diisi",
+        ));
     }
     if body.name.trim().is_empty() {
-        return Err(AppError::BadRequest("name wajib diisi".into()));
+        return Err(AppError::validation(
+            "Lengkapi field yang required atau isi teks yang sesuai.",
+            "name",
+            "Nama wajib diisi",
+        ));
     }
     if body.password.len() < 8 {
-        return Err(AppError::BadRequest("password minimal 8 karakter".into()));
+        return Err(AppError::validation(
+            "Lengkapi field yang required atau isi teks yang sesuai.",
+            "password",
+            "Password minimal 8 karakter",
+        ));
     }
     if !["admin", "user"].contains(&body.role.as_str()) {
-        return Err(AppError::BadRequest("role harus 'admin' atau 'user'".into()));
+        return Err(AppError::validation(
+            "Lengkapi field yang required atau isi teks yang sesuai.",
+            "role",
+            "Role harus admin atau user",
+        ));
     }
 
     let password_hash = hash_password(&body.password)?;
@@ -239,7 +255,11 @@ async fn create_user(
     .map_err(|e| {
         if let sqlx::Error::Database(ref db_err) = e {
             if db_err.constraint() == Some("users_email_key") {
-                return AppError::BadRequest("Email sudah digunakan".into());
+                return AppError::validation(
+                    "Lengkapi field yang required atau isi teks yang sesuai.",
+                    "email",
+                    "Email sudah digunakan",
+                );
             }
         }
         AppError::Database(e)
@@ -276,14 +296,40 @@ async fn update_user(
 ) -> Result<Json<UserResponse>> {
     auth::require_role(&user, "admin")?;
 
+    if let Some(ref email) = body.email {
+        if email.trim().is_empty() {
+            return Err(AppError::validation(
+                "Lengkapi field yang required atau isi teks yang sesuai.",
+                "email",
+                "Email wajib diisi",
+            ));
+        }
+    }
+    if let Some(ref name) = body.name {
+        if name.trim().is_empty() {
+            return Err(AppError::validation(
+                "Lengkapi field yang required atau isi teks yang sesuai.",
+                "name",
+                "Nama wajib diisi",
+            ));
+        }
+    }
     if let Some(ref role) = body.role {
         if !["admin", "user"].contains(&role.as_str()) {
-            return Err(AppError::BadRequest("role harus 'admin' atau 'user'".into()));
+            return Err(AppError::validation(
+                "Lengkapi field yang required atau isi teks yang sesuai.",
+                "role",
+                "Role harus admin atau user",
+            ));
         }
     }
     if let Some(ref password) = body.password {
         if !password.is_empty() && password.len() < 8 {
-            return Err(AppError::BadRequest("password minimal 8 karakter".into()));
+            return Err(AppError::validation(
+                "Lengkapi field yang required atau isi teks yang sesuai.",
+                "password",
+                "Password minimal 8 karakter",
+            ));
         }
     }
 
@@ -314,7 +360,11 @@ async fn update_user(
     .map_err(|e| {
         if let sqlx::Error::Database(ref db_err) = e {
             if db_err.constraint() == Some("users_email_key") {
-                return AppError::BadRequest("Email sudah digunakan".into());
+                return AppError::validation(
+                    "Lengkapi field yang required atau isi teks yang sesuai.",
+                    "email",
+                    "Email sudah digunakan",
+                );
             }
         }
         AppError::Database(e)

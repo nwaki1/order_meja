@@ -186,7 +186,11 @@ async fn create_role(
 
     let name = body.name.trim();
     if name.is_empty() {
-        return Err(AppError::BadRequest("name wajib diisi".into()));
+        return Err(AppError::validation(
+            "Lengkapi field yang required atau isi teks yang sesuai.",
+            "name",
+            "Nama role wajib diisi",
+        ));
     }
 
     let new_role = sqlx::query_as::<_, RoleResponse>(
@@ -200,7 +204,19 @@ async fn create_role(
     .bind(body.description.trim())
     .fetch_one(&state.db)
     .await
-    .map_err(|e| map_role_db_error(e, "Role sudah ada", "Role sedang digunakan"))?;
+    .map_err(|e| {
+        if let sqlx::Error::Database(ref db_err) = e {
+            if db_err.constraint() == Some("roles_pkey") || db_err.code().as_deref() == Some("23505")
+            {
+                return AppError::validation(
+                    "Lengkapi field yang required atau isi teks yang sesuai.",
+                    "name",
+                    "Role sudah ada",
+                );
+            }
+        }
+        map_role_db_error(e, "Role sudah ada", "Role sedang digunakan")
+    })?;
 
     Ok((StatusCode::CREATED, Json(new_role)))
 }
@@ -233,7 +249,11 @@ async fn update_role(
 
     if let Some(ref next_name) = body.name {
         if next_name.trim().is_empty() {
-            return Err(AppError::BadRequest("name wajib diisi".into()));
+            return Err(AppError::validation(
+                "Lengkapi field yang required atau isi teks yang sesuai.",
+                "name",
+                "Nama role wajib diisi",
+            ));
         }
     }
 
@@ -252,7 +272,19 @@ async fn update_role(
     .bind(body.description.as_deref().map(str::trim))
     .fetch_optional(&state.db)
     .await
-    .map_err(|e| map_role_db_error(e, "Role sudah ada", "Role sedang digunakan dan tidak bisa diubah"))?
+    .map_err(|e| {
+        if let sqlx::Error::Database(ref db_err) = e {
+            if db_err.constraint() == Some("roles_pkey") || db_err.code().as_deref() == Some("23505")
+            {
+                return AppError::validation(
+                    "Lengkapi field yang required atau isi teks yang sesuai.",
+                    "name",
+                    "Role sudah ada",
+                );
+            }
+        }
+        map_role_db_error(e, "Role sudah ada", "Role sedang digunakan dan tidak bisa diubah")
+    })?
     .ok_or_else(|| AppError::NotFound("Role tidak ditemukan".into()))?;
 
     Ok(Json(updated))

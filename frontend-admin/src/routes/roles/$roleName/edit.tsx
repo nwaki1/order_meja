@@ -7,6 +7,7 @@ import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { RoleForm } from '#/components/role-form.tsx'
 import type { RoleFormData } from '#/components/role-form.tsx'
 import { Button } from '#/components/ui/button.tsx'
+import { ApiError, type ApiFieldErrors } from '#/lib/api.ts'
 import { getRole, updateRole } from '#/lib/roles.ts'
 import type { Role } from '#/lib/roles.ts'
 
@@ -25,6 +26,7 @@ function RoleEditPage() {
   const [loading, setLoading] = React.useState(true)
 
   const [formError, setFormError] = React.useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = React.useState<ApiFieldErrors>({})
   const [submitting, setSubmitting] = React.useState(false)
 
   React.useEffect(() => {
@@ -52,6 +54,7 @@ function RoleEditPage() {
   async function handleSubmit(data: RoleFormData) {
     if (!accessToken || !role) return
     setFormError(null)
+    setFieldErrors({})
     setSubmitting(true)
     try {
       const updated = await updateRole(accessToken, role.name, {
@@ -60,7 +63,12 @@ function RoleEditPage() {
       })
       router.navigate({ to: '/roles/$roleName', params: { roleName: updated.name } })
     } catch (e) {
-      setFormError(e instanceof Error ? e.message : 'Terjadi kesalahan')
+      if (e instanceof ApiError) {
+        setFormError(e.message)
+        setFieldErrors(e.fieldErrors ?? {})
+      } else {
+        setFormError(e instanceof Error ? e.message : 'Terjadi kesalahan')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -123,6 +131,7 @@ function RoleEditPage() {
           mode="edit"
           initialData={role}
           error={formError}
+          fieldErrors={fieldErrors}
           submitting={submitting}
           onSubmit={handleSubmit}
           onCancel={() => router.navigate({ to: '/roles/$roleName', params: { roleName: role.name } })}

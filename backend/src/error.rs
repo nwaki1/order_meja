@@ -1,5 +1,6 @@
 use axum::{http::StatusCode, response::IntoResponse, Json};
-use serde_json::json;
+use serde_json::{json, Value};
+use std::collections::BTreeMap;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -12,6 +13,12 @@ pub enum AppError {
 
     #[error("Bad request: {0}")]
     BadRequest(String),
+
+    #[error("Validation error: {0}")]
+    Validation {
+        message: String,
+        fields: BTreeMap<String, String>,
+    },
 
     #[error("Unauthorized")]
     Unauthorized,
@@ -34,6 +41,9 @@ impl IntoResponse for AppError {
             }
             AppError::NotFound(msg) => (StatusCode::NOT_FOUND, msg.clone()),
             AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg.clone()),
+            AppError::Validation { message, .. } => {
+                (StatusCode::UNPROCESSABLE_ENTITY, message.clone())
+            }
             AppError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized".to_string()),
             AppError::Forbidden => (StatusCode::FORBIDDEN, "Forbidden".to_string()),
             AppError::Internal(e) => {
@@ -42,6 +52,26 @@ impl IntoResponse for AppError {
             }
         };
 
-        (status, Json(json!({ "error": message }))).into_response()
+        let mut payload = serde_json::Map::from_iter([
+            ("error".to_string(), Value::String(message.clone())),
+            ("message".to_string(), Value::String(message)),
+        ]);
+
+        if let AppError::Validation { fields, .. } = &self {
+            payload.insert("fields".to_string(), json!(fields));
+        }
+
+        (status, Json(Value::Object(payload))).into_response()
+    }
+}
+
+impl AppError {
+    pub fn validation(message: impl Into<String>, field: &str, error: impl Into<String>) -> Self {
+        let mut fields = BTreeMap::new();
+        fields.insert(field.to_string(), error.into());
+        Self::Validation {
+            message: message.into(),
+            fields,
+        }
     }
 }

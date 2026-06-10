@@ -7,6 +7,7 @@ import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { UserForm } from '#/components/user-form.tsx'
 import type { UserFormData } from '#/components/user-form.tsx'
+import { ApiError, type ApiFieldErrors } from '#/lib/api.ts'
 import { getUser, updateUser } from '#/lib/users.ts'
 import type { User } from '#/lib/users.ts'
 
@@ -25,6 +26,7 @@ function UserEditPage() {
   const [loading, setLoading] = React.useState(true)
 
   const [formError, setFormError] = React.useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = React.useState<ApiFieldErrors>({})
   const [submitting, setSubmitting] = React.useState(false)
 
   React.useEffect(() => {
@@ -44,6 +46,7 @@ function UserEditPage() {
   async function handleSubmit(data: UserFormData) {
     if (!accessToken || !user) return
     setFormError(null)
+    setFieldErrors({})
     setSubmitting(true)
     try {
       const payload: Record<string, string> = {
@@ -55,7 +58,12 @@ function UserEditPage() {
       await updateUser(accessToken, user.id, payload)
       router.navigate({ to: '/users/$userId', params: { userId: user.id } })
     } catch (e) {
-      setFormError(e instanceof Error ? e.message : 'Terjadi kesalahan')
+      if (e instanceof ApiError) {
+        setFormError(e.message)
+        setFieldErrors(e.fieldErrors ?? {})
+      } else {
+        setFormError(e instanceof Error ? e.message : 'Terjadi kesalahan')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -120,6 +128,7 @@ function UserEditPage() {
           mode="edit"
           initialData={user}
           error={formError}
+          fieldErrors={fieldErrors}
           submitting={submitting}
           onSubmit={handleSubmit}
           onCancel={() =>

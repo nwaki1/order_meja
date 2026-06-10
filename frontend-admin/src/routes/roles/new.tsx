@@ -7,6 +7,7 @@ import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { RoleForm } from '#/components/role-form.tsx'
 import type { RoleFormData } from '#/components/role-form.tsx'
 import { Button } from '#/components/ui/button.tsx'
+import { ApiError, type ApiFieldErrors } from '#/lib/api.ts'
 import { createRole } from '#/lib/roles.ts'
 
 export const Route = createFileRoute('/roles/new')({
@@ -19,11 +20,13 @@ function NewRolePage() {
   const accessToken = session?.accessToken
 
   const [error, setError] = React.useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = React.useState<ApiFieldErrors>({})
   const [submitting, setSubmitting] = React.useState(false)
 
   async function handleSubmit(data: RoleFormData) {
     if (!accessToken) return
     setError(null)
+    setFieldErrors({})
     setSubmitting(true)
     try {
       await createRole(accessToken, {
@@ -32,7 +35,12 @@ function NewRolePage() {
       })
       router.navigate({ to: '/roles' })
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Terjadi kesalahan')
+      if (e instanceof ApiError) {
+        setError(e.message)
+        setFieldErrors(e.fieldErrors ?? {})
+      } else {
+        setError(e instanceof Error ? e.message : 'Terjadi kesalahan')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -58,6 +66,7 @@ function NewRolePage() {
         <RoleForm
           mode="create"
           error={error}
+          fieldErrors={fieldErrors}
           submitting={submitting}
           onSubmit={handleSubmit}
           onCancel={() => router.navigate({ to: '/roles' })}
