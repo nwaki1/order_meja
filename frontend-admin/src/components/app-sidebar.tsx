@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   LogOut,
   Shield,
+  Store,
   Users,
 } from 'lucide-react'
 
@@ -45,6 +46,13 @@ const mainNav = [
     to: '/tenants',
     icon: Building2,
     end: false,
+  },
+  {
+    title: 'Outlets',
+    to: '/outlets',
+    icon: Store,
+    end: false,
+    permission: 'outlets:read',
   },
   {
     title: 'Roles',

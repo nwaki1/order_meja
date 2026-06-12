@@ -32,6 +32,10 @@ const RESOURCE_LABELS: Record<string, ResourceConfig> = {
     plural: 'Tenants',
     singular: 'Tenant',
   },
+  outlets: {
+    plural: 'Outlets',
+    singular: 'Outlet',
+  },
 }
 
 type Crumb = {

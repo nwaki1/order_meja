@@ -15,6 +15,7 @@ import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as TenantsIndexRouteImport } from './routes/tenants/index'
 import { Route as RolesIndexRouteImport } from './routes/roles/index'
 import { Route as PermissionsIndexRouteImport } from './routes/permissions/index'
+import { Route as OutletsIndexRouteImport } from './routes/outlets/index'
 import { Route as UsersNewRouteImport } from './routes/users/new'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
 import { Route as TenantsNewRouteImport } from './routes/tenants/new'
@@ -22,14 +23,17 @@ import { Route as RolesNewRouteImport } from './routes/roles/new'
 import { Route as RolesRoleNameRouteImport } from './routes/roles/$roleName'
 import { Route as PermissionsNewRouteImport } from './routes/permissions/new'
 import { Route as PermissionsPermissionNameRouteImport } from './routes/permissions/$permissionName'
+import { Route as OutletsNewRouteImport } from './routes/outlets/new'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
 import { Route as TenantsTenantIdIndexRouteImport } from './routes/tenants/$tenantId/index'
 import { Route as RolesRoleNameIndexRouteImport } from './routes/roles/$roleName/index'
 import { Route as PermissionsPermissionNameIndexRouteImport } from './routes/permissions/$permissionName/index'
+import { Route as OutletsOutletIdIndexRouteImport } from './routes/outlets/$outletId/index'
 import { Route as UsersUserIdEditRouteImport } from './routes/users/$userId/edit'
 import { Route as TenantsTenantIdEditRouteImport } from './routes/tenants/$tenantId/edit'
 import { Route as RolesRoleNameEditRouteImport } from './routes/roles/$roleName/edit'
 import { Route as PermissionsPermissionNameEditRouteImport } from './routes/permissions/$permissionName/edit'
+import { Route as OutletsOutletIdEditRouteImport } from './routes/outlets/$outletId/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -59,6 +63,11 @@ const RolesIndexRoute = RolesIndexRouteImport.update({
 const PermissionsIndexRoute = PermissionsIndexRouteImport.update({
   id: '/permissions/',
   path: '/permissions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OutletsIndexRoute = OutletsIndexRouteImport.update({
+  id: '/outlets/',
+  path: '/outlets/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsersNewRoute = UsersNewRouteImport.update({
@@ -97,6 +106,11 @@ const PermissionsPermissionNameRoute =
     path: '/permissions/$permissionName',
     getParentRoute: () => rootRouteImport,
   } as any)
+const OutletsNewRoute = OutletsNewRouteImport.update({
+  id: '/outlets/new',
+  path: '/outlets/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsersUserIdIndexRoute = UsersUserIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -118,6 +132,11 @@ const PermissionsPermissionNameIndexRoute =
     path: '/',
     getParentRoute: () => PermissionsPermissionNameRoute,
   } as any)
+const OutletsOutletIdIndexRoute = OutletsOutletIdIndexRouteImport.update({
+  id: '/outlets/$outletId/',
+  path: '/outlets/$outletId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsersUserIdEditRoute = UsersUserIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -139,10 +158,16 @@ const PermissionsPermissionNameEditRoute =
     path: '/edit',
     getParentRoute: () => PermissionsPermissionNameRoute,
   } as any)
+const OutletsOutletIdEditRoute = OutletsOutletIdEditRouteImport.update({
+  id: '/outlets/$outletId/edit',
+  path: '/outlets/$outletId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/outlets/new': typeof OutletsNewRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameRouteWithChildren
   '/permissions/new': typeof PermissionsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
@@ -150,14 +175,17 @@ export interface FileRoutesByFullPath {
   '/tenants/new': typeof TenantsNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
+  '/outlets/': typeof OutletsIndexRoute
   '/permissions/': typeof PermissionsIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/outlets/$outletId/edit': typeof OutletsOutletIdEditRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/outlets/$outletId/': typeof OutletsOutletIdIndexRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
   '/tenants/$tenantId/': typeof TenantsTenantIdIndexRoute
@@ -166,18 +194,22 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/outlets/new': typeof OutletsNewRoute
   '/permissions/new': typeof PermissionsNewRoute
   '/roles/new': typeof RolesNewRoute
   '/tenants/new': typeof TenantsNewRoute
   '/users/new': typeof UsersNewRoute
+  '/outlets': typeof OutletsIndexRoute
   '/permissions': typeof PermissionsIndexRoute
   '/roles': typeof RolesIndexRoute
   '/tenants': typeof TenantsIndexRoute
   '/users': typeof UsersIndexRoute
+  '/outlets/$outletId/edit': typeof OutletsOutletIdEditRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/outlets/$outletId': typeof OutletsOutletIdIndexRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameIndexRoute
   '/roles/$roleName': typeof RolesRoleNameIndexRoute
   '/tenants/$tenantId': typeof TenantsTenantIdIndexRoute
@@ -187,6 +219,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/outlets/new': typeof OutletsNewRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameRouteWithChildren
   '/permissions/new': typeof PermissionsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
@@ -194,14 +227,17 @@ export interface FileRoutesById {
   '/tenants/new': typeof TenantsNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
+  '/outlets/': typeof OutletsIndexRoute
   '/permissions/': typeof PermissionsIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/outlets/$outletId/edit': typeof OutletsOutletIdEditRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/outlets/$outletId/': typeof OutletsOutletIdIndexRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
   '/tenants/$tenantId/': typeof TenantsTenantIdIndexRoute
@@ -212,6 +248,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/outlets/new'
     | '/permissions/$permissionName'
     | '/permissions/new'
     | '/roles/$roleName'
@@ -219,14 +256,17 @@ export interface FileRouteTypes {
     | '/tenants/new'
     | '/users/$userId'
     | '/users/new'
+    | '/outlets/'
     | '/permissions/'
     | '/roles/'
     | '/tenants/'
     | '/users/'
+    | '/outlets/$outletId/edit'
     | '/permissions/$permissionName/edit'
     | '/roles/$roleName/edit'
     | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
+    | '/outlets/$outletId/'
     | '/permissions/$permissionName/'
     | '/roles/$roleName/'
     | '/tenants/$tenantId/'
@@ -235,18 +275,22 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/outlets/new'
     | '/permissions/new'
     | '/roles/new'
     | '/tenants/new'
     | '/users/new'
+    | '/outlets'
     | '/permissions'
     | '/roles'
     | '/tenants'
     | '/users'
+    | '/outlets/$outletId/edit'
     | '/permissions/$permissionName/edit'
     | '/roles/$roleName/edit'
     | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
+    | '/outlets/$outletId'
     | '/permissions/$permissionName'
     | '/roles/$roleName'
     | '/tenants/$tenantId'
@@ -255,6 +299,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
+    | '/outlets/new'
     | '/permissions/$permissionName'
     | '/permissions/new'
     | '/roles/$roleName'
@@ -262,14 +307,17 @@ export interface FileRouteTypes {
     | '/tenants/new'
     | '/users/$userId'
     | '/users/new'
+    | '/outlets/'
     | '/permissions/'
     | '/roles/'
     | '/tenants/'
     | '/users/'
+    | '/outlets/$outletId/edit'
     | '/permissions/$permissionName/edit'
     | '/roles/$roleName/edit'
     | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
+    | '/outlets/$outletId/'
     | '/permissions/$permissionName/'
     | '/roles/$roleName/'
     | '/tenants/$tenantId/'
@@ -279,6 +327,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  OutletsNewRoute: typeof OutletsNewRoute
   PermissionsPermissionNameRoute: typeof PermissionsPermissionNameRouteWithChildren
   PermissionsNewRoute: typeof PermissionsNewRoute
   RolesRoleNameRoute: typeof RolesRoleNameRouteWithChildren
@@ -286,11 +335,14 @@ export interface RootRouteChildren {
   TenantsNewRoute: typeof TenantsNewRoute
   UsersUserIdRoute: typeof UsersUserIdRouteWithChildren
   UsersNewRoute: typeof UsersNewRoute
+  OutletsIndexRoute: typeof OutletsIndexRoute
   PermissionsIndexRoute: typeof PermissionsIndexRoute
   RolesIndexRoute: typeof RolesIndexRoute
   TenantsIndexRoute: typeof TenantsIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
+  OutletsOutletIdEditRoute: typeof OutletsOutletIdEditRoute
   TenantsTenantIdEditRoute: typeof TenantsTenantIdEditRoute
+  OutletsOutletIdIndexRoute: typeof OutletsOutletIdIndexRoute
   TenantsTenantIdIndexRoute: typeof TenantsTenantIdIndexRoute
 }
 
@@ -336,6 +388,13 @@ declare module '@tanstack/react-router' {
       path: '/permissions'
       fullPath: '/permissions/'
       preLoaderRoute: typeof PermissionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/outlets/': {
+      id: '/outlets/'
+      path: '/outlets'
+      fullPath: '/outlets/'
+      preLoaderRoute: typeof OutletsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users/new': {
@@ -387,6 +446,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PermissionsPermissionNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/outlets/new': {
+      id: '/outlets/new'
+      path: '/outlets/new'
+      fullPath: '/outlets/new'
+      preLoaderRoute: typeof OutletsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/$userId/': {
       id: '/users/$userId/'
       path: '/'
@@ -415,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PermissionsPermissionNameIndexRouteImport
       parentRoute: typeof PermissionsPermissionNameRoute
     }
+    '/outlets/$outletId/': {
+      id: '/outlets/$outletId/'
+      path: '/outlets/$outletId'
+      fullPath: '/outlets/$outletId/'
+      preLoaderRoute: typeof OutletsOutletIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/$userId/edit': {
       id: '/users/$userId/edit'
       path: '/edit'
@@ -442,6 +515,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/permissions/$permissionName/edit'
       preLoaderRoute: typeof PermissionsPermissionNameEditRouteImport
       parentRoute: typeof PermissionsPermissionNameRoute
+    }
+    '/outlets/$outletId/edit': {
+      id: '/outlets/$outletId/edit'
+      path: '/outlets/$outletId/edit'
+      fullPath: '/outlets/$outletId/edit'
+      preLoaderRoute: typeof OutletsOutletIdEditRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -493,6 +573,7 @@ const UsersUserIdRouteWithChildren = UsersUserIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  OutletsNewRoute: OutletsNewRoute,
   PermissionsPermissionNameRoute: PermissionsPermissionNameRouteWithChildren,
   PermissionsNewRoute: PermissionsNewRoute,
   RolesRoleNameRoute: RolesRoleNameRouteWithChildren,
@@ -500,11 +581,14 @@ const rootRouteChildren: RootRouteChildren = {
   TenantsNewRoute: TenantsNewRoute,
   UsersUserIdRoute: UsersUserIdRouteWithChildren,
   UsersNewRoute: UsersNewRoute,
+  OutletsIndexRoute: OutletsIndexRoute,
   PermissionsIndexRoute: PermissionsIndexRoute,
   RolesIndexRoute: RolesIndexRoute,
   TenantsIndexRoute: TenantsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
+  OutletsOutletIdEditRoute: OutletsOutletIdEditRoute,
   TenantsTenantIdEditRoute: TenantsTenantIdEditRoute,
+  OutletsOutletIdIndexRoute: OutletsOutletIdIndexRoute,
   TenantsTenantIdIndexRoute: TenantsTenantIdIndexRoute,
 }
 export const routeTree = rootRouteImport
