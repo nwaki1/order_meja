@@ -1,0 +1,10 @@
+{
+  "name": "order-meja",
+  "private": true,
+  "scripts": {
+    "backend": "bash backend/run.sh",
+    "admin": "pnpm --dir frontend-admin dev",
+    "admin:build": "pnpm --dir frontend-admin build",
+    "admin:preview": "pnpm --dir frontend-admin preview"
+  }
+}
