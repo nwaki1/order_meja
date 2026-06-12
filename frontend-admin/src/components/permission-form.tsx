@@ -3,46 +3,44 @@ import { Button } from '#/components/ui/button.tsx'
 import { Input } from '#/components/ui/input.tsx'
 import { Label } from '#/components/ui/label.tsx'
 import type { ApiFieldErrors } from '#/lib/api.ts'
-import type { Role } from '#/lib/roles.ts'
+import type { Permission } from '#/lib/permissions.ts'
 
-export type RoleFormMode = 'create' | 'edit' | 'view'
+export type PermissionFormMode = 'create' | 'edit' | 'view'
 
-export interface RoleFormData {
+export interface PermissionFormData {
   name: string
   description: string
 }
 
-type RoleFormFieldErrors = Partial<Record<keyof RoleFormData, string>>
+type PermissionFormFieldErrors = Partial<Record<keyof PermissionFormData, string>>
 
-interface RoleFormProps {
-  mode: RoleFormMode
-  initialData?: Role | null
+interface PermissionFormProps {
+  mode: PermissionFormMode
+  initialData?: Permission | null
   error?: string | null
-  fieldErrors?: RoleFormFieldErrors | ApiFieldErrors
+  fieldErrors?: PermissionFormFieldErrors | ApiFieldErrors
   submitting?: boolean
-  children?: React.ReactNode
-  onSubmit?: (data: RoleFormData) => void
+  onSubmit?: (data: PermissionFormData) => void
   onCancel?: () => void
 }
 
-export function RoleForm({
+export function PermissionForm({
   mode,
   initialData,
   error,
   fieldErrors,
   submitting = false,
-  children,
   onSubmit,
   onCancel,
-}: RoleFormProps) {
+}: PermissionFormProps) {
   const formRef = React.useRef<HTMLFormElement | null>(null)
-  const [form, setForm] = React.useState<RoleFormData>({
+  const [form, setForm] = React.useState<PermissionFormData>({
     name: initialData?.name ?? '',
     description: initialData?.description ?? '',
   })
   const [submitAttempted, setSubmitAttempted] = React.useState(false)
   const [serverFieldErrors, setServerFieldErrors] =
-    React.useState<RoleFormFieldErrors>({})
+    React.useState<PermissionFormFieldErrors>({})
 
   React.useEffect(() => {
     if (initialData) {
@@ -58,7 +56,7 @@ export function RoleForm({
   }, [fieldErrors])
 
   const disabled = mode === 'view' || submitting
-  const validationErrors: RoleFormFieldErrors = {
+  const validationErrors: PermissionFormFieldErrors = {
     name: !form.name.trim() ? 'Required' : '',
   }
   const hasValidationError = Object.values(validationErrors).some(Boolean)
@@ -73,7 +71,7 @@ export function RoleForm({
     }
   }, [error, hasServerFieldError])
 
-  const visibleErrors: RoleFormFieldErrors = {
+  const visibleErrors: PermissionFormFieldErrors = {
     name: submitAttempted
       ? validationErrors.name || serverFieldErrors.name || ''
       : serverFieldErrors.name || '',
@@ -112,15 +110,15 @@ export function RoleForm({
       )}
 
       <div className="space-y-1.5">
-        <Label htmlFor="rf-name" className="gap-1">
+        <Label htmlFor="pf-name" className="gap-1">
           <span>
-            Nama Role
+            Nama Permission
             <span className="ml-0.5 font-bold text-destructive">*</span>
           </span>
         </Label>
         <Input
-          id="rf-name"
-          placeholder="manager"
+          id="pf-name"
+          placeholder="manage.users"
           value={form.name}
           onChange={(e) => {
             const value = e.target.value
@@ -138,10 +136,10 @@ export function RoleForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="rf-description">Deskripsi</Label>
+        <Label htmlFor="pf-description">Deskripsi</Label>
         <Input
-          id="rf-description"
-          placeholder="Role untuk manager"
+          id="pf-description"
+          placeholder="Akses untuk mengelola users"
           value={form.description}
           onChange={(e) =>
             setForm((current) => ({ ...current, description: e.target.value }))
@@ -155,35 +153,27 @@ export function RoleForm({
           <div className="space-y-1.5">
             <Label>Dibuat</Label>
             <Input
-              value={new Date(initialData.created_at).toLocaleDateString(
-                'id-ID',
-                {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                },
-              )}
+              value={new Date(initialData.created_at).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
               disabled
             />
           </div>
           <div className="space-y-1.5">
             <Label>Diperbarui</Label>
             <Input
-              value={new Date(initialData.updated_at).toLocaleDateString(
-                'id-ID',
-                {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                },
-              )}
+              value={new Date(initialData.updated_at).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
               disabled
             />
           </div>
         </>
       )}
-
-      {children}
 
       {mode !== 'view' && (
         <div className="flex gap-3 pt-2 md:col-span-2">

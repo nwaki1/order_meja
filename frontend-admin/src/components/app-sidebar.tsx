@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link, useRouter, useRouterState } from '@tanstack/react-router'
-import { LayoutDashboard, LogOut, Shield, Users } from 'lucide-react'
+import { KeyRound, LayoutDashboard, LogOut, Shield, Users } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
 import { Avatar, AvatarFallback } from '#/components/ui/avatar.tsx'
@@ -38,13 +38,19 @@ const mainNav = [
     icon: Shield,
     end: false,
   },
+  {
+    title: 'Permissions',
+    to: '/permissions',
+    icon: KeyRound,
+    end: false,
+  },
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { state } = useSidebar()
   const router = useRouter()
   const pathname = useRouterState({
-    select: (state) => state.location.pathname,
+    select: (routerState) => routerState.location.pathname,
   })
   const { user, logout } = useAuth()
 

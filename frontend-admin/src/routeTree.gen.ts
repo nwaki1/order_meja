@@ -13,14 +13,19 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as RolesIndexRouteImport } from './routes/roles/index'
+import { Route as PermissionsIndexRouteImport } from './routes/permissions/index'
 import { Route as UsersNewRouteImport } from './routes/users/new'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
 import { Route as RolesNewRouteImport } from './routes/roles/new'
 import { Route as RolesRoleNameRouteImport } from './routes/roles/$roleName'
+import { Route as PermissionsNewRouteImport } from './routes/permissions/new'
+import { Route as PermissionsPermissionNameRouteImport } from './routes/permissions/$permissionName'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
 import { Route as RolesRoleNameIndexRouteImport } from './routes/roles/$roleName/index'
+import { Route as PermissionsPermissionNameIndexRouteImport } from './routes/permissions/$permissionName/index'
 import { Route as UsersUserIdEditRouteImport } from './routes/users/$userId/edit'
 import { Route as RolesRoleNameEditRouteImport } from './routes/roles/$roleName/edit'
+import { Route as PermissionsPermissionNameEditRouteImport } from './routes/permissions/$permissionName/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -40,6 +45,11 @@ const UsersIndexRoute = UsersIndexRouteImport.update({
 const RolesIndexRoute = RolesIndexRouteImport.update({
   id: '/roles/',
   path: '/roles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PermissionsIndexRoute = PermissionsIndexRouteImport.update({
+  id: '/permissions/',
+  path: '/permissions/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsersNewRoute = UsersNewRouteImport.update({
@@ -62,6 +72,17 @@ const RolesRoleNameRoute = RolesRoleNameRouteImport.update({
   path: '/roles/$roleName',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PermissionsNewRoute = PermissionsNewRouteImport.update({
+  id: '/permissions/new',
+  path: '/permissions/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PermissionsPermissionNameRoute =
+  PermissionsPermissionNameRouteImport.update({
+    id: '/permissions/$permissionName',
+    path: '/permissions/$permissionName',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const UsersUserIdIndexRoute = UsersUserIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -72,6 +93,12 @@ const RolesRoleNameIndexRoute = RolesRoleNameIndexRouteImport.update({
   path: '/',
   getParentRoute: () => RolesRoleNameRoute,
 } as any)
+const PermissionsPermissionNameIndexRoute =
+  PermissionsPermissionNameIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => PermissionsPermissionNameRoute,
+  } as any)
 const UsersUserIdEditRoute = UsersUserIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -82,30 +109,45 @@ const RolesRoleNameEditRoute = RolesRoleNameEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => RolesRoleNameRoute,
 } as any)
+const PermissionsPermissionNameEditRoute =
+  PermissionsPermissionNameEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => PermissionsPermissionNameRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/permissions/$permissionName': typeof PermissionsPermissionNameRouteWithChildren
+  '/permissions/new': typeof PermissionsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
   '/roles/new': typeof RolesNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
+  '/permissions/': typeof PermissionsIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/permissions/new': typeof PermissionsNewRoute
   '/roles/new': typeof RolesNewRoute
   '/users/new': typeof UsersNewRoute
+  '/permissions': typeof PermissionsIndexRoute
   '/roles': typeof RolesIndexRoute
   '/users': typeof UsersIndexRoute
+  '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/permissions/$permissionName': typeof PermissionsPermissionNameIndexRoute
   '/roles/$roleName': typeof RolesRoleNameIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
 }
@@ -113,14 +155,19 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/permissions/$permissionName': typeof PermissionsPermissionNameRouteWithChildren
+  '/permissions/new': typeof PermissionsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
   '/roles/new': typeof RolesNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
+  '/permissions/': typeof PermissionsIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
 }
@@ -129,40 +176,54 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/permissions/$permissionName'
+    | '/permissions/new'
     | '/roles/$roleName'
     | '/roles/new'
     | '/users/$userId'
     | '/users/new'
+    | '/permissions/'
     | '/roles/'
     | '/users/'
+    | '/permissions/$permissionName/edit'
     | '/roles/$roleName/edit'
     | '/users/$userId/edit'
+    | '/permissions/$permissionName/'
     | '/roles/$roleName/'
     | '/users/$userId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/permissions/new'
     | '/roles/new'
     | '/users/new'
+    | '/permissions'
     | '/roles'
     | '/users'
+    | '/permissions/$permissionName/edit'
     | '/roles/$roleName/edit'
     | '/users/$userId/edit'
+    | '/permissions/$permissionName'
     | '/roles/$roleName'
     | '/users/$userId'
   id:
     | '__root__'
     | '/'
     | '/login'
+    | '/permissions/$permissionName'
+    | '/permissions/new'
     | '/roles/$roleName'
     | '/roles/new'
     | '/users/$userId'
     | '/users/new'
+    | '/permissions/'
     | '/roles/'
     | '/users/'
+    | '/permissions/$permissionName/edit'
     | '/roles/$roleName/edit'
     | '/users/$userId/edit'
+    | '/permissions/$permissionName/'
     | '/roles/$roleName/'
     | '/users/$userId/'
   fileRoutesById: FileRoutesById
@@ -170,10 +231,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  PermissionsPermissionNameRoute: typeof PermissionsPermissionNameRouteWithChildren
+  PermissionsNewRoute: typeof PermissionsNewRoute
   RolesRoleNameRoute: typeof RolesRoleNameRouteWithChildren
   RolesNewRoute: typeof RolesNewRoute
   UsersUserIdRoute: typeof UsersUserIdRouteWithChildren
   UsersNewRoute: typeof UsersNewRoute
+  PermissionsIndexRoute: typeof PermissionsIndexRoute
   RolesIndexRoute: typeof RolesIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
 }
@@ -208,6 +272,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RolesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/permissions/': {
+      id: '/permissions/'
+      path: '/permissions'
+      fullPath: '/permissions/'
+      preLoaderRoute: typeof PermissionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/new': {
       id: '/users/new'
       path: '/users/new'
@@ -236,6 +307,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RolesRoleNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/permissions/new': {
+      id: '/permissions/new'
+      path: '/permissions/new'
+      fullPath: '/permissions/new'
+      preLoaderRoute: typeof PermissionsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/permissions/$permissionName': {
+      id: '/permissions/$permissionName'
+      path: '/permissions/$permissionName'
+      fullPath: '/permissions/$permissionName'
+      preLoaderRoute: typeof PermissionsPermissionNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/$userId/': {
       id: '/users/$userId/'
       path: '/'
@@ -249,6 +334,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/roles/$roleName/'
       preLoaderRoute: typeof RolesRoleNameIndexRouteImport
       parentRoute: typeof RolesRoleNameRoute
+    }
+    '/permissions/$permissionName/': {
+      id: '/permissions/$permissionName/'
+      path: '/'
+      fullPath: '/permissions/$permissionName/'
+      preLoaderRoute: typeof PermissionsPermissionNameIndexRouteImport
+      parentRoute: typeof PermissionsPermissionNameRoute
     }
     '/users/$userId/edit': {
       id: '/users/$userId/edit'
@@ -264,8 +356,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RolesRoleNameEditRouteImport
       parentRoute: typeof RolesRoleNameRoute
     }
+    '/permissions/$permissionName/edit': {
+      id: '/permissions/$permissionName/edit'
+      path: '/edit'
+      fullPath: '/permissions/$permissionName/edit'
+      preLoaderRoute: typeof PermissionsPermissionNameEditRouteImport
+      parentRoute: typeof PermissionsPermissionNameRoute
+    }
   }
 }
+
+interface PermissionsPermissionNameRouteChildren {
+  PermissionsPermissionNameEditRoute: typeof PermissionsPermissionNameEditRoute
+  PermissionsPermissionNameIndexRoute: typeof PermissionsPermissionNameIndexRoute
+}
+
+const PermissionsPermissionNameRouteChildren: PermissionsPermissionNameRouteChildren =
+  {
+    PermissionsPermissionNameEditRoute: PermissionsPermissionNameEditRoute,
+    PermissionsPermissionNameIndexRoute: PermissionsPermissionNameIndexRoute,
+  }
+
+const PermissionsPermissionNameRouteWithChildren =
+  PermissionsPermissionNameRoute._addFileChildren(
+    PermissionsPermissionNameRouteChildren,
+  )
 
 interface RolesRoleNameRouteChildren {
   RolesRoleNameEditRoute: typeof RolesRoleNameEditRoute
@@ -298,10 +413,13 @@ const UsersUserIdRouteWithChildren = UsersUserIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  PermissionsPermissionNameRoute: PermissionsPermissionNameRouteWithChildren,
+  PermissionsNewRoute: PermissionsNewRoute,
   RolesRoleNameRoute: RolesRoleNameRouteWithChildren,
   RolesNewRoute: RolesNewRoute,
   UsersUserIdRoute: UsersUserIdRouteWithChildren,
   UsersNewRoute: UsersNewRoute,
+  PermissionsIndexRoute: PermissionsIndexRoute,
   RolesIndexRoute: RolesIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
 }

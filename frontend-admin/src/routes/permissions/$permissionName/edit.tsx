@@ -4,39 +4,30 @@ import { ArrowLeft } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
 import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
-import { RolePermissionsField } from '#/components/role-permissions-field.tsx'
-import { RoleForm } from '#/components/role-form.tsx'
-import type { RoleFormData } from '#/components/role-form.tsx'
+import { PermissionForm } from '#/components/permission-form.tsx'
+import type { PermissionFormData } from '#/components/permission-form.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { ApiError } from '#/lib/api.ts'
 import type { ApiFieldErrors } from '#/lib/api.ts'
-import {
-  getRole,
-  getRolePermissions,
-  updateRole,
-  updateRolePermissions,
-} from '#/lib/roles.ts'
-import type { Role } from '#/lib/roles.ts'
+import { getPermission, updatePermission } from '#/lib/permissions.ts'
+import type { Permission } from '#/lib/permissions.ts'
 
-export const Route = createFileRoute('/roles/$roleName/edit')({
-  component: RoleEditPage,
+export const Route = createFileRoute('/permissions/$permissionName/edit')({
+  component: PermissionEditPage,
 })
 
-function RoleEditPage() {
-  const { roleName } = Route.useParams()
+function PermissionEditPage() {
+  const { permissionName } = Route.useParams()
   const router = useRouter()
   const { session } = useAuth()
   const accessToken = session?.accessToken
 
-  const [role, setRole] = React.useState<Role | null>(null)
+  const [permission, setPermission] = React.useState<Permission | null>(null)
   const [loadError, setLoadError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(true)
 
   const [formError, setFormError] = React.useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = React.useState<ApiFieldErrors>({})
-  const [selectedPermissions, setSelectedPermissions] = React.useState<
-    string[]
-  >([])
   const [submitting, setSubmitting] = React.useState(false)
 
   React.useEffect(() => {
@@ -45,19 +36,14 @@ function RoleEditPage() {
     setLoading(true)
     setLoadError(null)
 
-    Promise.all([
-      getRole(accessToken, roleName),
-      getRolePermissions(accessToken, roleName),
-    ])
-      .then(([data, rolePermissions]) => {
-        if (!cancelled) {
-          setRole(data)
-          setSelectedPermissions(rolePermissions.permissions)
-        }
+    getPermission(accessToken, permissionName)
+      .then((data) => {
+        if (!cancelled) setPermission(data)
       })
       .catch((e) => {
-        if (!cancelled)
+        if (!cancelled) {
           setLoadError(e instanceof Error ? e.message : 'Gagal memuat data')
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -66,26 +52,21 @@ function RoleEditPage() {
     return () => {
       cancelled = true
     }
-  }, [accessToken, roleName])
+  }, [accessToken, permissionName])
 
-  async function handleSubmit(data: RoleFormData) {
-    if (!accessToken || !role) return
+  async function handleSubmit(data: PermissionFormData) {
+    if (!accessToken || !permission) return
     setFormError(null)
     setFieldErrors({})
     setSubmitting(true)
     try {
-      const updated = await updateRole(accessToken, role.name, {
+      const updated = await updatePermission(accessToken, permission.name, {
         name: data.name,
         description: data.description,
       })
-      await updateRolePermissions(
-        accessToken,
-        updated.name,
-        selectedPermissions,
-      )
       router.navigate({
-        to: '/roles/$roleName',
-        params: { roleName: updated.name },
+        to: '/permissions/$permissionName',
+        params: { permissionName: updated.name },
       })
     } catch (e) {
       if (e instanceof ApiError) {
@@ -104,7 +85,7 @@ function RoleEditPage() {
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon-sm" asChild>
-            <Link to="/roles/$roleName" params={{ roleName }}>
+            <Link to="/permissions/$permissionName" params={{ permissionName }}>
               <ArrowLeft />
             </Link>
           </Button>
@@ -122,16 +103,16 @@ function RoleEditPage() {
     )
   }
 
-  if (loadError || !role) {
+  if (loadError || !permission) {
     return (
       <div className="space-y-4">
         <Button variant="ghost" size="icon-sm" asChild>
-          <Link to="/roles/$roleName" params={{ roleName }}>
+          <Link to="/permissions/$permissionName" params={{ permissionName }}>
             <ArrowLeft />
           </Link>
         </Button>
         <p className="text-sm text-destructive">
-          {loadError ?? 'Role tidak ditemukan.'}
+          {loadError ?? 'Permission tidak ditemukan.'}
         </p>
       </div>
     )
@@ -141,13 +122,16 @@ function RoleEditPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon-sm" asChild>
-          <Link to="/roles/$roleName" params={{ roleName: role.name }}>
+          <Link
+            to="/permissions/$permissionName"
+            params={{ permissionName: permission.name }}
+          >
             <ArrowLeft />
           </Link>
         </Button>
         <div>
           <h2 className="text-lg font-semibold text-[var(--sea-ink)]">
-            Edit Role
+            Edit Permission
           </h2>
           <div className="mt-1">
             <AdminBreadcrumbs />
@@ -156,29 +140,20 @@ function RoleEditPage() {
       </div>
 
       <div className="rounded-lg border border-[var(--line)] bg-background p-6">
-        <RoleForm
+        <PermissionForm
           mode="edit"
-          initialData={role}
+          initialData={permission}
           error={formError}
           fieldErrors={fieldErrors}
           submitting={submitting}
           onSubmit={handleSubmit}
           onCancel={() =>
             router.navigate({
-              to: '/roles/$roleName',
-              params: { roleName: role.name },
+              to: '/permissions/$permissionName',
+              params: { permissionName: permission.name },
             })
           }
-        >
-          {accessToken ? (
-            <RolePermissionsField
-              token={accessToken}
-              selectedPermissions={selectedPermissions}
-              disabled={submitting}
-              onChange={setSelectedPermissions}
-            />
-          ) : null}
-        </RoleForm>
+        />
       </div>
     </div>
   )

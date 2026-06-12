@@ -18,6 +18,11 @@ export interface UpdateRolePayload {
   description?: string
 }
 
+export interface RolePermissions {
+  role: string
+  permissions: string[]
+}
+
 export function listRoles(
   token: string,
   params?: ODataParams,
@@ -55,6 +60,25 @@ export function updateRole(
 export function deleteRole(token: string, name: string): Promise<void> {
   return requestJson(`/roles/${encodeURIComponent(name)}`, {
     method: 'DELETE',
+    token,
+  })
+}
+
+export function getRolePermissions(
+  token: string,
+  name: string,
+): Promise<RolePermissions> {
+  return requestJson(`/roles/${encodeURIComponent(name)}/permissions`, { token })
+}
+
+export function updateRolePermissions(
+  token: string,
+  name: string,
+  permissions: string[],
+): Promise<RolePermissions> {
+  return requestJson(`/roles/${encodeURIComponent(name)}/permissions`, {
+    method: 'PUT',
+    body: { permissions },
     token,
   })
 }

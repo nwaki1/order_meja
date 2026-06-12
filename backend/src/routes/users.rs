@@ -2,7 +2,7 @@ use crate::{auth, auth::hash_password, AppError, AppState, Result};
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
-    routing::{delete, get, post, put},
+    routing::get,
     Json, Router,
 };
 use serde::{Deserialize, Serialize};

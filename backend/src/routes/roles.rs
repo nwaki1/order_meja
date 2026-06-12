@@ -6,6 +6,7 @@ use axum::{
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use sqlx::{QueryBuilder, Row};
 
 #[derive(Debug, Serialize, sqlx::FromRow)]
@@ -53,9 +54,21 @@ pub struct UpdateRoleRequest {
     pub description: Option<String>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct RolePermissionsResponse {
+    pub role: String,
+    pub permissions: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateRolePermissionsRequest {
+    pub permissions: Vec<String>,
+}
+
 pub fn router() -> Router<AppState> {
     Router::<AppState>::new()
         .route("/", get(list_roles).post(create_role))
+        .route("/:name/permissions", get(get_role_permissions).put(update_role_permissions))
         .route("/:name", get(get_role).put(update_role).delete(delete_role))
 }
 
@@ -308,4 +321,116 @@ async fn delete_role(
     }
 
     Ok(StatusCode::NO_CONTENT)
+}
+
+async fn get_role_permissions(
+    user: auth::AuthUser,
+    State(state): State<AppState>,
+    Path(name): Path<String>,
+) -> Result<Json<RolePermissionsResponse>> {
+    auth::require_role(&user, "admin")?;
+
+    let role_name = sqlx::query_scalar::<_, String>("SELECT name FROM roles WHERE name = $1")
+        .bind(&name)
+        .fetch_optional(&state.db)
+        .await?
+        .ok_or_else(|| AppError::NotFound("Role tidak ditemukan".into()))?;
+
+    let permissions = sqlx::query_scalar::<_, String>(
+        r#"
+        SELECT permission_name
+        FROM role_permissions
+        WHERE role_name = $1
+        ORDER BY permission_name ASC
+        "#,
+    )
+    .bind(&role_name)
+    .fetch_all(&state.db)
+    .await?;
+
+    Ok(Json(RolePermissionsResponse {
+        role: role_name,
+        permissions,
+    }))
+}
+
+async fn update_role_permissions(
+    user: auth::AuthUser,
+    State(state): State<AppState>,
+    Path(name): Path<String>,
+    Json(body): Json<UpdateRolePermissionsRequest>,
+) -> Result<Json<RolePermissionsResponse>> {
+    auth::require_role(&user, "admin")?;
+
+    let role_name = sqlx::query_scalar::<_, String>("SELECT name FROM roles WHERE name = $1")
+        .bind(&name)
+        .fetch_optional(&state.db)
+        .await?
+        .ok_or_else(|| AppError::NotFound("Role tidak ditemukan".into()))?;
+
+    let mut unique_permissions = HashSet::new();
+    let mut permissions = Vec::new();
+    for permission in body.permissions {
+        let permission = permission.trim().to_string();
+        if permission.is_empty() {
+            return Err(AppError::BadRequest("Permission tidak valid".into()));
+        }
+        if unique_permissions.insert(permission.clone()) {
+            permissions.push(permission);
+        }
+    }
+    permissions.sort();
+
+    if !permissions.is_empty() {
+        let existing = sqlx::query_scalar::<_, String>(
+            r#"
+            SELECT name
+            FROM permissions
+            WHERE name = ANY($1::TEXT[])
+            "#,
+        )
+        .bind(&permissions)
+        .fetch_all(&state.db)
+        .await?;
+        let existing: HashSet<String> = existing.into_iter().collect();
+        let missing: Vec<String> = permissions
+            .iter()
+            .filter(|permission| !existing.contains(*permission))
+            .cloned()
+            .collect();
+
+        if !missing.is_empty() {
+            return Err(AppError::BadRequest(format!(
+                "Permission tidak ditemukan: {}",
+                missing.join(", ")
+            )));
+        }
+    }
+
+    let mut tx = state.db.begin().await?;
+
+    sqlx::query("DELETE FROM role_permissions WHERE role_name = $1")
+        .bind(&role_name)
+        .execute(&mut *tx)
+        .await?;
+
+    for permission in &permissions {
+        sqlx::query(
+            r#"
+            INSERT INTO role_permissions (role_name, permission_name)
+            VALUES ($1, $2)
+            "#,
+        )
+        .bind(&role_name)
+        .bind(permission)
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    tx.commit().await?;
+
+    Ok(Json(RolePermissionsResponse {
+        role: role_name,
+        permissions,
+    }))
 }

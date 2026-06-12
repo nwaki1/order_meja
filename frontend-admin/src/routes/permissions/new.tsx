@@ -4,42 +4,37 @@ import { ArrowLeft } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
 import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
-import { RolePermissionsField } from '#/components/role-permissions-field.tsx'
-import { RoleForm } from '#/components/role-form.tsx'
-import type { RoleFormData } from '#/components/role-form.tsx'
+import { PermissionForm } from '#/components/permission-form.tsx'
+import type { PermissionFormData } from '#/components/permission-form.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { ApiError } from '#/lib/api.ts'
 import type { ApiFieldErrors } from '#/lib/api.ts'
-import { createRole, updateRolePermissions } from '#/lib/roles.ts'
+import { createPermission } from '#/lib/permissions.ts'
 
-export const Route = createFileRoute('/roles/new')({
-  component: NewRolePage,
+export const Route = createFileRoute('/permissions/new')({
+  component: NewPermissionPage,
 })
 
-function NewRolePage() {
+function NewPermissionPage() {
   const router = useRouter()
   const { session } = useAuth()
   const accessToken = session?.accessToken
 
   const [error, setError] = React.useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = React.useState<ApiFieldErrors>({})
-  const [selectedPermissions, setSelectedPermissions] = React.useState<
-    string[]
-  >([])
   const [submitting, setSubmitting] = React.useState(false)
 
-  async function handleSubmit(data: RoleFormData) {
+  async function handleSubmit(data: PermissionFormData) {
     if (!accessToken) return
     setError(null)
     setFieldErrors({})
     setSubmitting(true)
     try {
-      const role = await createRole(accessToken, {
+      await createPermission(accessToken, {
         name: data.name,
         description: data.description,
       })
-      await updateRolePermissions(accessToken, role.name, selectedPermissions)
-      router.navigate({ to: '/roles' })
+      router.navigate({ to: '/permissions' })
     } catch (e) {
       if (e instanceof ApiError) {
         setError(e.message)
@@ -56,13 +51,13 @@ function NewRolePage() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon-sm" asChild>
-          <Link to="/roles">
+          <Link to="/permissions">
             <ArrowLeft />
           </Link>
         </Button>
         <div>
           <h2 className="text-lg font-semibold text-[var(--sea-ink)]">
-            Tambah Role
+            Tambah Permission
           </h2>
           <div className="mt-1">
             <AdminBreadcrumbs />
@@ -71,23 +66,14 @@ function NewRolePage() {
       </div>
 
       <div className="rounded-lg border border-[var(--line)] bg-background p-6">
-        <RoleForm
+        <PermissionForm
           mode="create"
           error={error}
           fieldErrors={fieldErrors}
           submitting={submitting}
           onSubmit={handleSubmit}
-          onCancel={() => router.navigate({ to: '/roles' })}
-        >
-          {accessToken ? (
-            <RolePermissionsField
-              token={accessToken}
-              selectedPermissions={selectedPermissions}
-              disabled={submitting}
-              onChange={setSelectedPermissions}
-            />
-          ) : null}
-        </RoleForm>
+          onCancel={() => router.navigate({ to: '/permissions' })}
+        />
       </div>
     </div>
   )

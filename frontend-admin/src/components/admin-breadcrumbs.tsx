@@ -24,6 +24,10 @@ const RESOURCE_LABELS: Record<string, ResourceConfig> = {
     plural: 'Roles',
     singular: 'Role',
   },
+  permissions: {
+    plural: 'Permissions',
+    singular: 'Permission',
+  },
 }
 
 type Crumb = {

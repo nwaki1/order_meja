@@ -4,22 +4,22 @@ import { ArrowLeft, Pencil, Trash2, X } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
 import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
-import { RoleForm } from '#/components/role-form.tsx'
+import { PermissionForm } from '#/components/permission-form.tsx'
 import { Button } from '#/components/ui/button.tsx'
-import { deleteRole, getRole } from '#/lib/roles.ts'
-import type { Role } from '#/lib/roles.ts'
+import { deletePermission, getPermission } from '#/lib/permissions.ts'
+import type { Permission } from '#/lib/permissions.ts'
 
-export const Route = createFileRoute('/roles/$roleName/')({
-  component: RoleDetailPage,
+export const Route = createFileRoute('/permissions/$permissionName/')({
+  component: PermissionDetailPage,
 })
 
-function RoleDetailPage() {
-  const { roleName } = Route.useParams()
+function PermissionDetailPage() {
+  const { permissionName } = Route.useParams()
   const router = useRouter()
   const { session } = useAuth()
   const accessToken = session?.accessToken
 
-  const [role, setRole] = React.useState<Role | null>(null)
+  const [permission, setPermission] = React.useState<Permission | null>(null)
   const [loadError, setLoadError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(true)
 
@@ -32,13 +32,14 @@ function RoleDetailPage() {
     setLoading(true)
     setLoadError(null)
 
-    getRole(accessToken, roleName)
+    getPermission(accessToken, permissionName)
       .then((data) => {
-        if (!cancelled) setRole(data)
+        if (!cancelled) setPermission(data)
       })
       .catch((e) => {
-        if (!cancelled)
+        if (!cancelled) {
           setLoadError(e instanceof Error ? e.message : 'Gagal memuat data')
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -47,16 +48,16 @@ function RoleDetailPage() {
     return () => {
       cancelled = true
     }
-  }, [accessToken, roleName])
+  }, [accessToken, permissionName])
 
   async function handleDelete() {
-    if (!accessToken || !role) return
+    if (!accessToken || !permission) return
     setDeleting(true)
     try {
-      await deleteRole(accessToken, role.name)
-      router.navigate({ to: '/roles' })
+      await deletePermission(accessToken, permission.name)
+      router.navigate({ to: '/permissions' })
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Gagal menghapus role')
+      alert(e instanceof Error ? e.message : 'Gagal menghapus permission')
       setDeleting(false)
       setConfirmDelete(false)
     }
@@ -67,7 +68,7 @@ function RoleDetailPage() {
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon-sm" asChild>
-            <Link to="/roles">
+            <Link to="/permissions">
               <ArrowLeft />
             </Link>
           </Button>
@@ -85,16 +86,16 @@ function RoleDetailPage() {
     )
   }
 
-  if (loadError || !role) {
+  if (loadError || !permission) {
     return (
       <div className="space-y-4">
         <Button variant="ghost" size="icon-sm" asChild>
-          <Link to="/roles">
+          <Link to="/permissions">
             <ArrowLeft />
           </Link>
         </Button>
         <p className="text-sm text-destructive">
-          {loadError ?? 'Role tidak ditemukan.'}
+          {loadError ?? 'Permission tidak ditemukan.'}
         </p>
       </div>
     )
@@ -105,13 +106,13 @@ function RoleDetailPage() {
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon-sm" asChild>
-            <Link to="/roles">
+            <Link to="/permissions">
               <ArrowLeft />
             </Link>
           </Button>
           <div>
             <h2 className="text-lg font-semibold text-[var(--sea-ink)]">
-              Detail Role
+              Detail Permission
             </h2>
             <div className="mt-1">
               <AdminBreadcrumbs />
@@ -121,7 +122,10 @@ function RoleDetailPage() {
 
         <div className="flex shrink-0 items-center gap-2">
           <Button size="sm" variant="outline" asChild>
-            <Link to="/roles/$roleName/edit" params={{ roleName: role.name }}>
+            <Link
+              to="/permissions/$permissionName/edit"
+              params={{ permissionName: permission.name }}
+            >
               <Pencil />
               Edit
             </Link>
@@ -161,7 +165,7 @@ function RoleDetailPage() {
       </div>
 
       <div className="rounded-lg border border-[var(--line)] bg-background p-6">
-        <RoleForm mode="view" initialData={role} />
+        <PermissionForm mode="view" initialData={permission} />
       </div>
     </div>
   )
