@@ -12,18 +12,22 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
+import { Route as TenantsIndexRouteImport } from './routes/tenants/index'
 import { Route as RolesIndexRouteImport } from './routes/roles/index'
 import { Route as PermissionsIndexRouteImport } from './routes/permissions/index'
 import { Route as UsersNewRouteImport } from './routes/users/new'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
+import { Route as TenantsNewRouteImport } from './routes/tenants/new'
 import { Route as RolesNewRouteImport } from './routes/roles/new'
 import { Route as RolesRoleNameRouteImport } from './routes/roles/$roleName'
 import { Route as PermissionsNewRouteImport } from './routes/permissions/new'
 import { Route as PermissionsPermissionNameRouteImport } from './routes/permissions/$permissionName'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
+import { Route as TenantsTenantIdIndexRouteImport } from './routes/tenants/$tenantId/index'
 import { Route as RolesRoleNameIndexRouteImport } from './routes/roles/$roleName/index'
 import { Route as PermissionsPermissionNameIndexRouteImport } from './routes/permissions/$permissionName/index'
 import { Route as UsersUserIdEditRouteImport } from './routes/users/$userId/edit'
+import { Route as TenantsTenantIdEditRouteImport } from './routes/tenants/$tenantId/edit'
 import { Route as RolesRoleNameEditRouteImport } from './routes/roles/$roleName/edit'
 import { Route as PermissionsPermissionNameEditRouteImport } from './routes/permissions/$permissionName/edit'
 
@@ -40,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
 const UsersIndexRoute = UsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TenantsIndexRoute = TenantsIndexRouteImport.update({
+  id: '/tenants/',
+  path: '/tenants/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RolesIndexRoute = RolesIndexRouteImport.update({
@@ -60,6 +69,11 @@ const UsersNewRoute = UsersNewRouteImport.update({
 const UsersUserIdRoute = UsersUserIdRouteImport.update({
   id: '/users/$userId',
   path: '/users/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TenantsNewRoute = TenantsNewRouteImport.update({
+  id: '/tenants/new',
+  path: '/tenants/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RolesNewRoute = RolesNewRouteImport.update({
@@ -88,6 +102,11 @@ const UsersUserIdIndexRoute = UsersUserIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => UsersUserIdRoute,
 } as any)
+const TenantsTenantIdIndexRoute = TenantsTenantIdIndexRouteImport.update({
+  id: '/tenants/$tenantId/',
+  path: '/tenants/$tenantId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RolesRoleNameIndexRoute = RolesRoleNameIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -103,6 +122,11 @@ const UsersUserIdEditRoute = UsersUserIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
   getParentRoute: () => UsersUserIdRoute,
+} as any)
+const TenantsTenantIdEditRoute = TenantsTenantIdEditRouteImport.update({
+  id: '/tenants/$tenantId/edit',
+  path: '/tenants/$tenantId/edit',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const RolesRoleNameEditRoute = RolesRoleNameEditRouteImport.update({
   id: '/edit',
@@ -123,16 +147,20 @@ export interface FileRoutesByFullPath {
   '/permissions/new': typeof PermissionsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
   '/roles/new': typeof RolesNewRoute
+  '/tenants/new': typeof TenantsNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
   '/permissions/': typeof PermissionsIndexRoute
   '/roles/': typeof RolesIndexRoute
+  '/tenants/': typeof TenantsIndexRoute
   '/users/': typeof UsersIndexRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
+  '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
+  '/tenants/$tenantId/': typeof TenantsTenantIdIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -140,15 +168,19 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/permissions/new': typeof PermissionsNewRoute
   '/roles/new': typeof RolesNewRoute
+  '/tenants/new': typeof TenantsNewRoute
   '/users/new': typeof UsersNewRoute
   '/permissions': typeof PermissionsIndexRoute
   '/roles': typeof RolesIndexRoute
+  '/tenants': typeof TenantsIndexRoute
   '/users': typeof UsersIndexRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
+  '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameIndexRoute
   '/roles/$roleName': typeof RolesRoleNameIndexRoute
+  '/tenants/$tenantId': typeof TenantsTenantIdIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
 }
 export interface FileRoutesById {
@@ -159,16 +191,20 @@ export interface FileRoutesById {
   '/permissions/new': typeof PermissionsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
   '/roles/new': typeof RolesNewRoute
+  '/tenants/new': typeof TenantsNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
   '/permissions/': typeof PermissionsIndexRoute
   '/roles/': typeof RolesIndexRoute
+  '/tenants/': typeof TenantsIndexRoute
   '/users/': typeof UsersIndexRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
+  '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
+  '/tenants/$tenantId/': typeof TenantsTenantIdIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -180,16 +216,20 @@ export interface FileRouteTypes {
     | '/permissions/new'
     | '/roles/$roleName'
     | '/roles/new'
+    | '/tenants/new'
     | '/users/$userId'
     | '/users/new'
     | '/permissions/'
     | '/roles/'
+    | '/tenants/'
     | '/users/'
     | '/permissions/$permissionName/edit'
     | '/roles/$roleName/edit'
+    | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
     | '/permissions/$permissionName/'
     | '/roles/$roleName/'
+    | '/tenants/$tenantId/'
     | '/users/$userId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -197,15 +237,19 @@ export interface FileRouteTypes {
     | '/login'
     | '/permissions/new'
     | '/roles/new'
+    | '/tenants/new'
     | '/users/new'
     | '/permissions'
     | '/roles'
+    | '/tenants'
     | '/users'
     | '/permissions/$permissionName/edit'
     | '/roles/$roleName/edit'
+    | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
     | '/permissions/$permissionName'
     | '/roles/$roleName'
+    | '/tenants/$tenantId'
     | '/users/$userId'
   id:
     | '__root__'
@@ -215,16 +259,20 @@ export interface FileRouteTypes {
     | '/permissions/new'
     | '/roles/$roleName'
     | '/roles/new'
+    | '/tenants/new'
     | '/users/$userId'
     | '/users/new'
     | '/permissions/'
     | '/roles/'
+    | '/tenants/'
     | '/users/'
     | '/permissions/$permissionName/edit'
     | '/roles/$roleName/edit'
+    | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
     | '/permissions/$permissionName/'
     | '/roles/$roleName/'
+    | '/tenants/$tenantId/'
     | '/users/$userId/'
   fileRoutesById: FileRoutesById
 }
@@ -235,11 +283,15 @@ export interface RootRouteChildren {
   PermissionsNewRoute: typeof PermissionsNewRoute
   RolesRoleNameRoute: typeof RolesRoleNameRouteWithChildren
   RolesNewRoute: typeof RolesNewRoute
+  TenantsNewRoute: typeof TenantsNewRoute
   UsersUserIdRoute: typeof UsersUserIdRouteWithChildren
   UsersNewRoute: typeof UsersNewRoute
   PermissionsIndexRoute: typeof PermissionsIndexRoute
   RolesIndexRoute: typeof RolesIndexRoute
+  TenantsIndexRoute: typeof TenantsIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
+  TenantsTenantIdEditRoute: typeof TenantsTenantIdEditRoute
+  TenantsTenantIdIndexRoute: typeof TenantsTenantIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -263,6 +315,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/users/'
       preLoaderRoute: typeof UsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tenants/': {
+      id: '/tenants/'
+      path: '/tenants'
+      fullPath: '/tenants/'
+      preLoaderRoute: typeof TenantsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roles/': {
@@ -291,6 +350,13 @@ declare module '@tanstack/react-router' {
       path: '/users/$userId'
       fullPath: '/users/$userId'
       preLoaderRoute: typeof UsersUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tenants/new': {
+      id: '/tenants/new'
+      path: '/tenants/new'
+      fullPath: '/tenants/new'
+      preLoaderRoute: typeof TenantsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roles/new': {
@@ -328,6 +394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdIndexRouteImport
       parentRoute: typeof UsersUserIdRoute
     }
+    '/tenants/$tenantId/': {
+      id: '/tenants/$tenantId/'
+      path: '/tenants/$tenantId'
+      fullPath: '/tenants/$tenantId/'
+      preLoaderRoute: typeof TenantsTenantIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/roles/$roleName/': {
       id: '/roles/$roleName/'
       path: '/'
@@ -348,6 +421,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/users/$userId/edit'
       preLoaderRoute: typeof UsersUserIdEditRouteImport
       parentRoute: typeof UsersUserIdRoute
+    }
+    '/tenants/$tenantId/edit': {
+      id: '/tenants/$tenantId/edit'
+      path: '/tenants/$tenantId/edit'
+      fullPath: '/tenants/$tenantId/edit'
+      preLoaderRoute: typeof TenantsTenantIdEditRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/roles/$roleName/edit': {
       id: '/roles/$roleName/edit'
@@ -417,11 +497,15 @@ const rootRouteChildren: RootRouteChildren = {
   PermissionsNewRoute: PermissionsNewRoute,
   RolesRoleNameRoute: RolesRoleNameRouteWithChildren,
   RolesNewRoute: RolesNewRoute,
+  TenantsNewRoute: TenantsNewRoute,
   UsersUserIdRoute: UsersUserIdRouteWithChildren,
   UsersNewRoute: UsersNewRoute,
   PermissionsIndexRoute: PermissionsIndexRoute,
   RolesIndexRoute: RolesIndexRoute,
+  TenantsIndexRoute: TenantsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
+  TenantsTenantIdEditRoute: TenantsTenantIdEditRoute,
+  TenantsTenantIdIndexRoute: TenantsTenantIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

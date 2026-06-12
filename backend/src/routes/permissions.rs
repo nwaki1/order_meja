@@ -147,7 +147,7 @@ async fn list_permissions(
     State(state): State<AppState>,
     Query(params): Query<ODataQuery>,
 ) -> Result<Json<ODataListResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "permissions:read")?;
 
     let top = params.top.min(100) as i64;
     let skip = params.skip as i64;
@@ -188,7 +188,7 @@ async fn create_permission(
     State(state): State<AppState>,
     Json(body): Json<CreatePermissionRequest>,
 ) -> Result<(StatusCode, Json<PermissionResponse>)> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "permissions:create")?;
 
     let name = body.name.trim();
     if name.is_empty() {
@@ -218,7 +218,7 @@ async fn get_permission(
     State(state): State<AppState>,
     Path(name): Path<String>,
 ) -> Result<Json<PermissionResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "permissions:read")?;
 
     let found = sqlx::query_as::<_, PermissionResponse>(
         "SELECT name, description, created_at, updated_at FROM permissions WHERE name = $1",
@@ -237,7 +237,7 @@ async fn update_permission(
     Path(name): Path<String>,
     Json(body): Json<UpdatePermissionRequest>,
 ) -> Result<Json<PermissionResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "permissions:update")?;
 
     if let Some(ref next_name) = body.name {
         if next_name.trim().is_empty() {
@@ -277,7 +277,7 @@ async fn delete_permission(
     State(state): State<AppState>,
     Path(name): Path<String>,
 ) -> Result<StatusCode> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "permissions:delete")?;
 
     let result = sqlx::query("DELETE FROM permissions WHERE name = $1")
         .bind(name)

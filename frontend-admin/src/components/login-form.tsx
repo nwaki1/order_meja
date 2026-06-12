@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { AlertCircle, ArrowRight, Loader2, ShieldCheck } from 'lucide-react'
+import { AlertCircle, ArrowRight, Loader2, LogIn } from 'lucide-react'
 
 import { cn } from '#/lib/utils.ts'
 import { ApiError } from '#/lib/api.ts'
@@ -61,13 +61,13 @@ export function LoginForm({
           <div className="border-b border-[var(--line)] p-6 md:border-b-0 md:border-r md:p-8">
             <CardHeader className="px-0 pb-6 text-left">
               <div className="mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--sea-ink-soft)]">
-                <ShieldCheck className="size-4" />
-                Admin Access
+                <LogIn className="size-4" />
+                Workspace Access
               </div>
               <CardTitle className="display-title text-3xl">Sign in</CardTitle>
               <CardDescription className="max-w-md text-sm leading-6 text-[var(--sea-ink-soft)]">
-                Masuk dengan akun admin backend Sportiva. Hanya role admin yang
-                bisa lanjut ke dashboard.
+                Masuk dengan akun backend Sportiva. Semua role yang memiliki
+                akun aktif bisa lanjut ke workspace.
               </CardDescription>
             </CardHeader>
 
@@ -122,13 +122,13 @@ export function LoginForm({
                       </>
                     ) : (
                       <>
-                        Login to Admin
+                        Login to Workspace
                         <ArrowRight className="size-4" />
                       </>
                     )}
                   </Button>
                   <FieldDescription className="text-center">
-                    Backend default admin email:{' '}
+                    Backend default email:{' '}
                     <code>admin@sportiva.local</code>
                   </FieldDescription>
                 </Field>

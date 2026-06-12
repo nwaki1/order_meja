@@ -4,12 +4,13 @@ import {
   type ThemeMode,
 } from '#/lib/theme.ts'
 
-export type AdminUser = {
+export type AuthUser = {
   id: string
   email: string
   name: string
   role: string
   themeMode: ThemeMode
+  permissions: string[]
 }
 
 type ApiUserInfo = {
@@ -18,6 +19,7 @@ type ApiUserInfo = {
   name: string
   role: string
   theme_mode: unknown
+  permissions?: unknown
 }
 
 export type LoginResponse = {
@@ -30,22 +32,24 @@ export type LoginResponse = {
 export type StoredAuthSession = {
   accessToken: string
   expiresAt: string
-  user: AdminUser
+  user: AuthUser
 }
 
-export const AUTH_STORAGE_KEY = 'sportiva_admin_session'
+export const AUTH_STORAGE_KEY = 'sportiva_session'
+const LEGACY_AUTH_STORAGE_KEY = 'sportiva_admin_session'
 
-export function isAdminUser(user: AdminUser | null | undefined) {
-  return user?.role === 'admin'
-}
-
-function mapApiUser(user: ApiUserInfo): AdminUser {
+function mapApiUser(user: ApiUserInfo): AuthUser {
   return {
     id: user.id,
     email: user.email,
     name: user.name,
     role: user.role,
     themeMode: normalizeThemeMode(user.theme_mode, 'auto'),
+    permissions: Array.isArray(user.permissions)
+      ? user.permissions.filter((permission): permission is string => {
+          return typeof permission === 'string'
+        })
+      : [],
   }
 }
 
@@ -54,7 +58,9 @@ export function readStoredSession(): StoredAuthSession | null {
     return null
   }
 
-  const raw = window.localStorage.getItem(AUTH_STORAGE_KEY)
+  const raw =
+    window.localStorage.getItem(AUTH_STORAGE_KEY) ??
+    window.localStorage.getItem(LEGACY_AUTH_STORAGE_KEY)
   if (!raw) {
     return null
   }
@@ -70,6 +76,7 @@ export function readStoredSession(): StoredAuthSession | null {
         role?: unknown
         themeMode?: unknown
         theme_mode?: unknown
+        permissions?: unknown
       }
     }
 
@@ -94,6 +101,12 @@ export function readStoredSession(): StoredAuthSession | null {
             parsed.user.themeMode ?? parsed.user.theme_mode,
             'auto',
           ),
+          permissions: Array.isArray(parsed.user.permissions)
+            ? parsed.user.permissions.filter(
+                (permission): permission is string =>
+                  typeof permission === 'string',
+              )
+            : [],
         },
       }
     }
@@ -106,23 +119,21 @@ export function readStoredSession(): StoredAuthSession | null {
 
 export function writeStoredSession(session: StoredAuthSession) {
   window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session))
+  window.localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY)
 }
 
 export function clearStoredSession() {
   window.localStorage.removeItem(AUTH_STORAGE_KEY)
+  window.localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY)
 }
 
-export async function loginAdmin(email: string, password: string) {
+export async function loginUser(email: string, password: string) {
   const response = await requestJson<LoginResponse>('/auth/login', {
     method: 'POST',
     body: { email, password },
   })
 
   const user = mapApiUser(response.user)
-
-  if (!isAdminUser(user)) {
-    throw new ApiError('Akun ini bukan admin.', 403)
-  }
 
   return {
     accessToken: response.access_token,
@@ -140,7 +151,7 @@ export async function fetchCurrentUser(accessToken: string) {
   return mapApiUser(user)
 }
 
-export async function logoutAdmin(accessToken: string) {
+export async function logoutUser(accessToken: string) {
   await requestJson<void>('/auth/logout', {
     method: 'POST',
     token: accessToken,

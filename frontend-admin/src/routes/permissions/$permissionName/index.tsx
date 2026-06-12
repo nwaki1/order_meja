@@ -16,8 +16,10 @@ export const Route = createFileRoute('/permissions/$permissionName/')({
 function PermissionDetailPage() {
   const { permissionName } = Route.useParams()
   const router = useRouter()
-  const { session } = useAuth()
+  const { session, hasPermission } = useAuth()
   const accessToken = session?.accessToken
+  const canUpdatePermission = hasPermission('permissions:update')
+  const canDeletePermission = hasPermission('permissions:delete')
 
   const [permission, setPermission] = React.useState<Permission | null>(null)
   const [loadError, setLoadError] = React.useState<string | null>(null)
@@ -121,17 +123,19 @@ function PermissionDetailPage() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Button size="sm" variant="outline" asChild>
-            <Link
-              to="/permissions/$permissionName/edit"
-              params={{ permissionName: permission.name }}
-            >
-              <Pencil />
-              Edit
-            </Link>
-          </Button>
+          {canUpdatePermission && (
+            <Button size="sm" variant="outline" asChild>
+              <Link
+                to="/permissions/$permissionName/edit"
+                params={{ permissionName: permission.name }}
+              >
+                <Pencil />
+                Edit
+              </Link>
+            </Button>
+          )}
 
-          {confirmDelete ? (
+          {canDeletePermission && (confirmDelete ? (
             <>
               <Button
                 size="sm"
@@ -160,7 +164,7 @@ function PermissionDetailPage() {
               <Trash2 />
               Hapus
             </Button>
-          )}
+          ))}
         </div>
       </div>
 

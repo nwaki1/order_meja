@@ -154,7 +154,7 @@ async fn list_roles(
     State(state): State<AppState>,
     Query(params): Query<ODataQuery>,
 ) -> Result<Json<ODataListResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "roles:read")?;
 
     let top = params.top.min(100) as i64;
     let skip = params.skip as i64;
@@ -195,7 +195,7 @@ async fn create_role(
     State(state): State<AppState>,
     Json(body): Json<CreateRoleRequest>,
 ) -> Result<(StatusCode, Json<RoleResponse>)> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "roles:create")?;
 
     let name = body.name.trim();
     if name.is_empty() {
@@ -239,7 +239,7 @@ async fn get_role(
     State(state): State<AppState>,
     Path(name): Path<String>,
 ) -> Result<Json<RoleResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "roles:read")?;
 
     let found = sqlx::query_as::<_, RoleResponse>(
         "SELECT name, description, created_at, updated_at FROM roles WHERE name = $1",
@@ -258,7 +258,7 @@ async fn update_role(
     Path(name): Path<String>,
     Json(body): Json<UpdateRoleRequest>,
 ) -> Result<Json<RoleResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "roles:update")?;
 
     if let Some(ref next_name) = body.name {
         if next_name.trim().is_empty() {
@@ -308,7 +308,7 @@ async fn delete_role(
     State(state): State<AppState>,
     Path(name): Path<String>,
 ) -> Result<StatusCode> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "roles:delete")?;
 
     let result = sqlx::query("DELETE FROM roles WHERE name = $1")
         .bind(name)
@@ -328,7 +328,7 @@ async fn get_role_permissions(
     State(state): State<AppState>,
     Path(name): Path<String>,
 ) -> Result<Json<RolePermissionsResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "roles:read")?;
 
     let role_name = sqlx::query_scalar::<_, String>("SELECT name FROM roles WHERE name = $1")
         .bind(&name)
@@ -360,7 +360,7 @@ async fn update_role_permissions(
     Path(name): Path<String>,
     Json(body): Json<UpdateRolePermissionsRequest>,
 ) -> Result<Json<RolePermissionsResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "roles:update_permissions")?;
 
     let role_name = sqlx::query_scalar::<_, String>("SELECT name FROM roles WHERE name = $1")
         .bind(&name)

@@ -40,8 +40,10 @@ export const Route = createFileRoute('/permissions/')({
 })
 
 function PermissionsPage() {
-  const { session } = useAuth()
+  const { session, hasPermission } = useAuth()
   const accessToken = session?.accessToken
+  const canCreatePermission = hasPermission('permissions:create')
+  const canDeletePermission = hasPermission('permissions:delete')
 
   const [permissions, setPermissions] = React.useState<Permission[]>([])
   const [totalCount, setTotalCount] = React.useState(0)
@@ -211,15 +213,17 @@ function PermissionsPage() {
                       <Eye />
                     </Link>
                   </Button>
-                  <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    title="Hapus permission"
-                    onClick={() => setConfirmDeleteName(permission.name)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 />
-                  </Button>
+                  {canDeletePermission && (
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      title="Hapus permission"
+                      onClick={() => setConfirmDeleteName(permission.name)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 />
+                    </Button>
+                  )}
                 </>
               )}
             </div>
@@ -227,7 +231,7 @@ function PermissionsPage() {
         },
       },
     ],
-    [confirmDeleteName, deleting],
+    [canDeletePermission, confirmDeleteName, deleting],
   )
 
   const table = useReactTable({
@@ -255,12 +259,14 @@ function PermissionsPage() {
             <AdminBreadcrumbs />
           </div>
         </div>
-        <Button size="sm" asChild variant="bright">
-          <Link to="/permissions/new">
-            <Plus />
-            Tambah Permission
-          </Link>
-        </Button>
+        {canCreatePermission && (
+          <Button size="sm" asChild variant="bright">
+            <Link to="/permissions/new">
+              <Plus />
+              Tambah Permission
+            </Link>
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center gap-3">

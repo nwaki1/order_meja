@@ -17,8 +17,10 @@ export const Route = createFileRoute('/users/$userId/')({
 function UserDetailPage() {
   const { userId } = Route.useParams()
   const router = useRouter()
-  const { session, user: authUser } = useAuth()
+  const { session, user: authUser, hasPermission } = useAuth()
   const accessToken = session?.accessToken
+  const canUpdateUser = hasPermission('users:update')
+  const canDeleteUser = hasPermission('users:delete')
 
   const [user, setUser] = React.useState<User | null>(null)
   const [loadError, setLoadError] = React.useState<string | null>(null)
@@ -105,14 +107,16 @@ function UserDetailPage() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Button size="sm" variant="outline" asChild>
-            <Link to="/users/$userId/edit" params={{ userId: user.id }}>
-              <Pencil />
-              Edit
-            </Link>
-          </Button>
+          {canUpdateUser && (
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/users/$userId/edit" params={{ userId: user.id }}>
+                <Pencil />
+                Edit
+              </Link>
+            </Button>
+          )}
 
-          {!isSelf && (
+          {canDeleteUser && !isSelf && (
             confirmDelete ? (
               <>
                 <Button

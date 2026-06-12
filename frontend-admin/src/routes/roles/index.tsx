@@ -40,8 +40,13 @@ export const Route = createFileRoute('/roles/')({
 })
 
 function RolesPage() {
-  const { session } = useAuth()
+  const { session, hasPermission } = useAuth()
   const accessToken = session?.accessToken
+  const canCreateRole =
+    hasPermission('roles:create') &&
+    hasPermission('roles:update_permissions') &&
+    hasPermission('permissions:read')
+  const canDeleteRole = hasPermission('roles:delete')
 
   const [roles, setRoles] = React.useState<Role[]>([])
   const [totalCount, setTotalCount] = React.useState(0)
@@ -197,15 +202,17 @@ function RolesPage() {
                       <Eye />
                     </Link>
                   </Button>
-                  <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    title="Hapus role"
-                    onClick={() => setConfirmDeleteName(role.name)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 />
-                  </Button>
+                  {canDeleteRole && (
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      title="Hapus role"
+                      onClick={() => setConfirmDeleteName(role.name)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 />
+                    </Button>
+                  )}
                 </>
               )}
             </div>
@@ -213,7 +220,7 @@ function RolesPage() {
         },
       },
     ],
-    [confirmDeleteName, deleting],
+    [canDeleteRole, confirmDeleteName, deleting],
   )
 
   const table = useReactTable({
@@ -239,12 +246,14 @@ function RolesPage() {
             <AdminBreadcrumbs />
           </div>
         </div>
-        <Button size="sm" asChild variant="bright">
-          <Link to="/roles/new">
-            <Plus />
-            Tambah Role
-          </Link>
-        </Button>
+        {canCreateRole && (
+          <Button size="sm" asChild variant="bright">
+            <Link to="/roles/new">
+              <Plus />
+              Tambah Role
+            </Link>
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center gap-3">

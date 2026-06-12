@@ -3,12 +3,11 @@ import * as React from 'react'
 import {
   clearStoredSession,
   fetchCurrentUser,
-  isAdminUser,
-  loginAdmin,
-  logoutAdmin,
+  loginUser,
+  logoutUser,
   readStoredSession,
   updateThemeMode as updateThemeModeRequest,
-  type AdminUser,
+  type AuthUser,
   type StoredAuthSession,
   writeStoredSession,
 } from '#/lib/auth.ts'
@@ -25,12 +24,13 @@ type AuthStatus = 'loading' | 'anonymous' | 'authenticated'
 type AuthContextValue = {
   status: AuthStatus
   session: StoredAuthSession | null
-  user: AdminUser | null
+  user: AuthUser | null
   themeMode: ThemeMode
   login: (email: string, password: string) => Promise<StoredAuthSession>
   logout: () => Promise<void>
   refreshSession: () => Promise<void>
   setThemeMode: (themeMode: ThemeMode) => Promise<void>
+  hasPermission: (permission: string) => boolean
 }
 
 const AuthContext = React.createContext<AuthContextValue | null>(null)
@@ -78,9 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       try {
         const user = await fetchCurrentUser(stored.accessToken)
-        if (!isAdminUser(user)) {
-          throw new Error('Non-admin session')
-        }
 
         const nextSession: StoredAuthSession = {
           ...stored,
@@ -112,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = React.useCallback(async (email: string, password: string) => {
     try {
-      const nextSession = await loginAdmin(email, password)
+      const nextSession = await loginUser(email, password)
       writeStoredSession(nextSession)
       setSession(nextSession)
       setThemeModeState(nextSession.user.themeMode)
@@ -134,9 +131,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const user = await fetchCurrentUser(session.accessToken)
-      if (!isAdminUser(user)) {
-        throw new Error('Non-admin session')
-      }
 
       const nextSession = { ...session, user }
       writeStoredSession(nextSession)
@@ -184,7 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (token) {
       try {
-        await logoutAdmin(token)
+        await logoutUser(token)
       } catch {
         // Best effort: even if the server token is already invalid, clear local state.
       }
@@ -196,6 +190,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setStatus('anonymous')
   }, [session])
 
+  const hasPermission = React.useCallback(
+    (permission: string) => {
+      return session?.user.permissions.includes(permission) ?? false
+    },
+    [session?.user.permissions],
+  )
+
   const value = React.useMemo<AuthContextValue>(
     () => ({
       status,
@@ -206,8 +207,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       refreshSession,
       setThemeMode,
+      hasPermission,
     }),
-    [status, session, themeMode, login, logout, refreshSession, setThemeMode],
+    [
+      status,
+      session,
+      themeMode,
+      login,
+      logout,
+      refreshSession,
+      setThemeMode,
+      hasPermission,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -38,6 +38,7 @@ pub struct UserInfo {
     pub name: String,
     pub role: String,
     pub theme_mode: auth::ThemeMode,
+    pub permissions: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -145,6 +146,7 @@ pub async fn register(
             name: row.name,
             role: row.role,
             theme_mode: auth::ThemeMode::Auto,
+            permissions: Vec::new(),
         }),
     ))
 }
@@ -189,6 +191,11 @@ pub async fn login(
     }
 
     let (token, expires_at) = auth::create_session(&state.db, user.id).await?;
+    let auth_user = auth::authenticate_token(&state.db, &token)
+        .await?
+        .ok_or(AppError::Unauthorized)?;
+    let mut permissions: Vec<String> = auth_user.permissions.into_iter().collect();
+    permissions.sort();
 
     Ok(Json(LoginResponse {
         token_type: "Bearer",
@@ -201,6 +208,7 @@ pub async fn login(
             role: user.role,
             theme_mode: auth::ThemeMode::parse(user.theme_mode.as_deref().unwrap_or("auto"))
                 .unwrap_or(auth::ThemeMode::Auto),
+            permissions,
         },
     }))
 }
@@ -230,12 +238,16 @@ pub async fn logout(
     tag = "Auth"
 )]
 pub async fn me(user: auth::AuthUser) -> Result<Json<UserInfo>> {
+    let mut permissions: Vec<String> = user.permissions.iter().cloned().collect();
+    permissions.sort();
+
     Ok(Json(UserInfo {
         id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,
         theme_mode: user.theme_mode,
+        permissions,
     }))
 }
 
@@ -268,6 +280,8 @@ pub async fn update_theme_mode(
     .bind(theme_mode.as_str())
     .execute(&state.db)
     .await?;
+    let mut permissions: Vec<String> = user.permissions.iter().cloned().collect();
+    permissions.sort();
 
     Ok(Json(UserInfo {
         id: user.id,
@@ -275,6 +289,7 @@ pub async fn update_theme_mode(
         name: user.name,
         role: user.role,
         theme_mode,
+        permissions,
     }))
 }
 

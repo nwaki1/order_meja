@@ -1,6 +1,13 @@
 import * as React from 'react'
 import { Link, useRouter, useRouterState } from '@tanstack/react-router'
-import { KeyRound, LayoutDashboard, LogOut, Shield, Users } from 'lucide-react'
+import {
+  Building2,
+  KeyRound,
+  LayoutDashboard,
+  LogOut,
+  Shield,
+  Users,
+} from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
 import { Avatar, AvatarFallback } from '#/components/ui/avatar.tsx'
@@ -31,18 +38,27 @@ const mainNav = [
     to: '/users',
     icon: Users,
     end: false,
+    permission: 'users:read',
+  },
+  {
+    title: 'Tenants',
+    to: '/tenants',
+    icon: Building2,
+    end: false,
   },
   {
     title: 'Roles',
     to: '/roles',
     icon: Shield,
     end: false,
+    permission: 'roles:read',
   },
   {
     title: 'Permissions',
     to: '/permissions',
     icon: KeyRound,
     end: false,
+    permission: 'permissions:read',
   },
 ]
 
@@ -52,7 +68,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = useRouterState({
     select: (routerState) => routerState.location.pathname,
   })
-  const { user, logout } = useAuth()
+  const { user, logout, hasPermission } = useAuth()
+  const visibleNav = mainNav.filter((item) => {
+    return !item.permission || hasPermission(item.permission)
+  })
 
   async function handleLogout() {
     await logout()
@@ -87,7 +106,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="px-2">
         <SidebarMenu className="gap-1.5">
           {/* <-- Item sidebar dirender di sini dari mainNav --> */}
-          {mainNav.map((item) => (
+          {visibleNav.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
@@ -131,7 +150,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   )}
                 >
                   <p className="truncate text-sm font-semibold text-sidebar-foreground">
-                    {user?.name ?? 'Admin'}
+                    {user?.name ?? 'User'}
                   </p>
                   <p className="truncate text-xs text-sidebar-foreground/70">
                     {user?.email ?? 'signed in'}

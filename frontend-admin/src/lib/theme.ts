@@ -1,7 +1,8 @@
 export type ThemeMode = 'light' | 'dark' | 'auto'
 
 export const THEME_STORAGE_KEY = 'theme'
-const AUTH_STORAGE_KEY = 'sportiva_admin_session'
+const AUTH_STORAGE_KEY = 'sportiva_session'
+const LEGACY_AUTH_STORAGE_KEY = 'sportiva_admin_session'
 
 const THEME_MODES = new Set<ThemeMode>(['light', 'dark', 'auto'])
 
@@ -54,7 +55,9 @@ function readThemeModeFromStoredSession(): ThemeMode | null {
     return null
   }
 
-  const rawSession = window.localStorage.getItem(AUTH_STORAGE_KEY)
+  const rawSession =
+    window.localStorage.getItem(AUTH_STORAGE_KEY) ??
+    window.localStorage.getItem(LEGACY_AUTH_STORAGE_KEY)
   if (!rawSession) {
     return null
   }

@@ -16,8 +16,13 @@ export const Route = createFileRoute('/roles/$roleName/')({
 function RoleDetailPage() {
   const { roleName } = Route.useParams()
   const router = useRouter()
-  const { session } = useAuth()
+  const { session, hasPermission } = useAuth()
   const accessToken = session?.accessToken
+  const canUpdateRole =
+    hasPermission('roles:update') &&
+    hasPermission('roles:update_permissions') &&
+    hasPermission('permissions:read')
+  const canDeleteRole = hasPermission('roles:delete')
 
   const [role, setRole] = React.useState<Role | null>(null)
   const [loadError, setLoadError] = React.useState<string | null>(null)
@@ -120,14 +125,16 @@ function RoleDetailPage() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Button size="sm" variant="outline" asChild>
-            <Link to="/roles/$roleName/edit" params={{ roleName: role.name }}>
-              <Pencil />
-              Edit
-            </Link>
-          </Button>
+          {canUpdateRole && (
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/roles/$roleName/edit" params={{ roleName: role.name }}>
+                <Pencil />
+                Edit
+              </Link>
+            </Button>
+          )}
 
-          {confirmDelete ? (
+          {canDeleteRole && (confirmDelete ? (
             <>
               <Button
                 size="sm"
@@ -156,7 +163,7 @@ function RoleDetailPage() {
               <Trash2 />
               Hapus
             </Button>
-          )}
+          ))}
         </div>
       </div>
 

@@ -259,7 +259,7 @@ async fn list_tenants(
     let skip = params.skip as i64;
     let filter = params.filter.as_deref().map(parse_filter).unwrap_or_default();
     let (order_col, order_dir) = parse_orderby(params.orderby.as_deref());
-    let is_admin = user.role == "admin";
+    let can_read_all_tenants = user.permissions.contains("tenants:read");
 
     let odata_count = if params.count {
         let mut cq: QueryBuilder<sqlx::Postgres> = QueryBuilder::new(
@@ -268,7 +268,7 @@ async fn list_tenants(
             FROM tenants t
             "#,
         );
-        if !is_admin {
+        if !can_read_all_tenants {
             cq.push(
                 r#"
                 JOIN user_tenants ut ON ut.tenant_id = t.id
@@ -276,7 +276,7 @@ async fn list_tenants(
             );
         }
         cq.push(" WHERE TRUE");
-        if !is_admin {
+        if !can_read_all_tenants {
             cq.push(" AND ut.user_id = ")
                 .push_bind(user.id)
                 .push(" AND ut.is_active = TRUE AND t.is_active = TRUE");
@@ -295,7 +295,7 @@ async fn list_tenants(
         FROM tenants t
         "#,
     );
-    if !is_admin {
+    if !can_read_all_tenants {
         dq.push(
             r#"
             JOIN user_tenants ut ON ut.tenant_id = t.id
@@ -303,7 +303,7 @@ async fn list_tenants(
         );
     }
     dq.push(" WHERE TRUE");
-    if !is_admin {
+    if !can_read_all_tenants {
         dq.push(" AND ut.user_id = ")
             .push_bind(user.id)
             .push(" AND ut.is_active = TRUE AND t.is_active = TRUE");
@@ -329,7 +329,7 @@ async fn create_tenant(
     State(state): State<AppState>,
     Json(body): Json<CreateTenantRequest>,
 ) -> Result<(StatusCode, Json<TenantResponse>)> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "tenants:create")?;
 
     let code = validate_tenant_code(&body.code)?;
     let name = validate_tenant_name(&body.name)?;
@@ -360,7 +360,7 @@ async fn get_tenant(
     let mut query = String::from(
         "SELECT id, code, name, is_active, created_at, updated_at FROM tenants WHERE id = $1",
     );
-    if user.role != "admin" {
+    if !user.permissions.contains("tenants:read") {
         query.push_str(" AND is_active = TRUE");
     }
 
@@ -379,7 +379,7 @@ async fn update_tenant(
     Path(id): Path<Uuid>,
     Json(body): Json<UpdateTenantRequest>,
 ) -> Result<Json<TenantResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "tenants:update")?;
 
     let code = match &body.code {
         Some(code) => Some(validate_tenant_code(code)?),
@@ -418,7 +418,7 @@ async fn deactivate_tenant(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "tenants:delete")?;
 
     let result = sqlx::query(
         r#"
@@ -443,7 +443,7 @@ async fn list_tenant_users(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<TenantUsersResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "tenant_users:read")?;
 
     let tenant_exists = sqlx::query_scalar::<_, bool>(
         "SELECT EXISTS(SELECT 1 FROM tenants WHERE id = $1)",
@@ -484,7 +484,7 @@ async fn assign_tenant_user(
     Path(id): Path<Uuid>,
     Json(body): Json<AssignUserTenantRequest>,
 ) -> Result<(StatusCode, Json<TenantUserResponse>)> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "tenant_users:assign")?;
     ensure_active_tenant(&state.db, id).await?;
     ensure_user_exists(&state.db, body.user_id).await?;
 
@@ -527,7 +527,7 @@ async fn revoke_tenant_user(
     State(state): State<AppState>,
     Path((id, user_id)): Path<(Uuid, Uuid)>,
 ) -> Result<StatusCode> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "tenant_users:revoke")?;
 
     let result = sqlx::query(
         r#"

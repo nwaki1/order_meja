@@ -5,11 +5,23 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import type { ColumnDef, PaginationState, SortingState } from '@tanstack/react-table'
-import { ChevronDown, ChevronUp, ChevronsUpDown, Eye, Plus, Trash2, X } from 'lucide-react'
+import type {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+} from '@tanstack/react-table'
+import {
+  ChevronDown,
+  ChevronUp,
+  ChevronsUpDown,
+  Eye,
+  Plus,
+  Trash2,
+  X,
+} from 'lucide-react'
 
-import { useAuth } from '#/components/auth-provider.tsx'
 import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
+import { useAuth } from '#/components/auth-provider.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { Input } from '#/components/ui/input.tsx'
 import {
@@ -19,34 +31,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select.tsx'
-import { deleteUser, listUsers } from '#/lib/users.ts'
-import type { ODataParams, User } from '#/lib/users.ts'
+import { deleteTenant, listTenants } from '#/lib/tenants.ts'
+import type { Tenant } from '#/lib/tenants.ts'
+import type { ODataParams } from '#/lib/users.ts'
 
-export const Route = createFileRoute('/users/')({
-  component: UsersPage,
+export const Route = createFileRoute('/tenants/')({
+  component: TenantsPage,
 })
 
-function UsersPage() {
-  const { session, user: authUser, hasPermission } = useAuth()
+function TenantsPage() {
+  const { session, hasPermission } = useAuth()
   const accessToken = session?.accessToken
-  const canCreateUser = hasPermission('users:create')
-  const canDeleteUser = hasPermission('users:delete')
+  const canCreateTenant = hasPermission('tenants:create')
+  const canDeleteTenant = hasPermission('tenants:delete')
 
-  // ── Server data
-  const [users, setUsers] = React.useState<User[]>([])
+  const [tenants, setTenants] = React.useState<Tenant[]>([])
   const [totalCount, setTotalCount] = React.useState(0)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const [refreshKey, setRefreshKey] = React.useState(0)
 
-  // ── Table state (server-side)
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   })
 
-  // ── Search: input immediate, query debounced
   const [searchInput, setSearchInput] = React.useState('')
   const [searchQuery, setSearchQuery] = React.useState('')
 
@@ -64,7 +74,6 @@ function UsersPage() {
     return () => clearTimeout(t)
   }, [searchInput])
 
-  // ── Fetch
   React.useEffect(() => {
     if (!accessToken) return
     let cancelled = false
@@ -83,46 +92,64 @@ function UsersPage() {
         }
         if (searchQuery.trim()) {
           const q = searchQuery.trim().replace(/'/g, "''")
-          odata.$filter = `contains(name,'${q}') or contains(email,'${q}')`
+          odata.$filter = `contains(code,'${q}') or contains(name,'${q}')`
         }
-        const res = await listUsers(accessToken, odata)
+        const res = await listTenants(accessToken, odata)
         if (!cancelled) {
-          const rows = Array.isArray(res) ? (res as unknown as User[]) : (res.value ?? [])
-          setUsers(rows)
-          setTotalCount((res as { '@odata.count'?: number })['@odata.count'] ?? rows.length)
+          const rows = Array.isArray(res)
+            ? (res as unknown as Tenant[])
+            : (res.value ?? [])
+          setTenants(rows)
+          setTotalCount(
+            (res as { '@odata.count'?: number })['@odata.count'] ??
+              rows.length,
+          )
         }
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Gagal memuat data')
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Gagal memuat data')
+        }
       } finally {
         if (!cancelled) setLoading(false)
       }
     }
 
     void load()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [accessToken, pagination, sorting, searchQuery, refreshKey])
 
-  // ── Delete
-  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(
+    null,
+  )
   const [deleting, setDeleting] = React.useState(false)
 
   async function handleDelete(id: string) {
     if (!accessToken) return
     setDeleting(true)
     try {
-      await deleteUser(accessToken, id)
+      await deleteTenant(accessToken, id)
       setConfirmDeleteId(null)
       setRefreshKey((k) => k + 1)
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Gagal menghapus user')
+      alert(e instanceof Error ? e.message : 'Gagal menonaktifkan tenant')
     } finally {
       setDeleting(false)
     }
   }
 
-  // ── Columns
-  const columns = React.useMemo<ColumnDef<User>[]>(
+  const columns = React.useMemo<ColumnDef<Tenant>[]>(
     () => [
+      {
+        accessorKey: 'code',
+        header: 'Kode',
+        cell: (info) => (
+          <span className="font-semibold text-[var(--sea-ink)]">
+            {info.getValue<string>()}
+          </span>
+        ),
+      },
       {
         accessorKey: 'name',
         header: 'Nama',
@@ -133,33 +160,26 @@ function UsersPage() {
         ),
       },
       {
-        accessorKey: 'email',
-        header: 'Email',
-        cell: (info) => (
-          <span className="text-[var(--sea-ink-soft)]">{info.getValue<string>()}</span>
-        ),
-      },
-      {
-        accessorKey: 'role',
-        header: 'Role',
+        accessorKey: 'is_active',
+        header: 'Status',
         cell: (info) => {
-          const role = info.getValue<string>()
+          const active = info.getValue<boolean>()
           return (
             <span
               className={
-                role === 'admin'
+                active
                   ? 'inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary'
                   : 'inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground'
               }
             >
-              {role}
+              {active ? 'Aktif' : 'Nonaktif'}
             </span>
           )
         },
       },
       {
         accessorKey: 'created_at',
-        header: 'Bergabung',
+        header: 'Dibuat',
         cell: (info) =>
           new Date(info.getValue<string>()).toLocaleDateString('id-ID', {
             day: 'numeric',
@@ -172,19 +192,20 @@ function UsersPage() {
         header: '',
         enableSorting: false,
         cell: ({ row }) => {
-          const u = row.original
-          const isSelf = u.id === authUser?.id
-          const isConfirming = confirmDeleteId === u.id
+          const tenant = row.original
+          const isConfirming = confirmDeleteId === tenant.id
 
           return (
             <div className="flex items-center justify-end gap-1">
               {isConfirming ? (
                 <>
-                  <span className="mr-1 text-xs text-destructive">Hapus?</span>
+                  <span className="mr-1 text-xs text-destructive">
+                    Nonaktifkan?
+                  </span>
                   <Button
                     size="xs"
                     variant="destructive"
-                    onClick={() => handleDelete(u.id)}
+                    onClick={() => handleDelete(tenant.id)}
                     disabled={deleting}
                   >
                     Ya
@@ -200,20 +221,25 @@ function UsersPage() {
                 </>
               ) : (
                 <>
-                  <Button size="icon-sm" variant="ghost" title="Lihat detail" asChild>
-                    <Link to="/users/$userId" params={{ userId: u.id }}>
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    title="Lihat detail"
+                    asChild
+                  >
+                    <Link
+                      to="/tenants/$tenantId"
+                      params={{ tenantId: tenant.id }}
+                    >
                       <Eye />
                     </Link>
                   </Button>
-                  {canDeleteUser && (
+                  {canDeleteTenant && (
                     <Button
                       size="icon-sm"
                       variant="ghost"
-                      title={
-                        isSelf ? 'Tidak bisa menghapus akun sendiri' : 'Hapus user'
-                      }
-                      disabled={isSelf}
-                      onClick={() => setConfirmDeleteId(u.id)}
+                      title="Nonaktifkan tenant"
+                      onClick={() => setConfirmDeleteId(tenant.id)}
                       className="text-destructive hover:text-destructive"
                     >
                       <Trash2 />
@@ -226,11 +252,11 @@ function UsersPage() {
         },
       },
     ],
-    [canDeleteUser, confirmDeleteId, deleting, authUser?.id],
+    [canDeleteTenant, confirmDeleteId, deleting],
   )
 
   const table = useReactTable({
-    data: users,
+    data: tenants,
     columns,
     state: { sorting, pagination },
     onSortingChange: setSorting,
@@ -245,29 +271,29 @@ function UsersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--sea-ink)]">Users</h2>
+          <h2 className="text-lg font-semibold text-[var(--sea-ink)]">
+            Tenants
+          </h2>
           <div className="mt-1">
             <AdminBreadcrumbs />
           </div>
         </div>
-        {canCreateUser && (
+        {canCreateTenant && (
           <Button size="sm" asChild variant="bright">
-            <Link to="/users/new">
+            <Link to="/tenants/new">
               <Plus />
-              Tambah User
+              Tambah Tenant
             </Link>
           </Button>
         )}
       </div>
 
-      {/* Search */}
       <div className="flex items-center gap-3">
         <div className="relative max-w-xs">
           <Input
-            placeholder="Cari nama atau email..."
+            placeholder="Cari kode atau nama..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="pr-9"
@@ -286,11 +312,12 @@ function UsersPage() {
           )}
         </div>
         {loading && (
-          <span className="animate-pulse text-xs text-[var(--sea-ink-soft)]">Memuat...</span>
+          <span className="animate-pulse text-xs text-[var(--sea-ink-soft)]">
+            Memuat...
+          </span>
         )}
       </div>
 
-      {/* Table */}
       <div className="overflow-hidden rounded-lg border border-[var(--line)]">
         <table className="w-full text-sm">
           <thead className="border-b border-[var(--line)] bg-muted/40">
@@ -306,7 +333,10 @@ function UsersPage() {
                         className="inline-flex items-center gap-1 transition-colors hover:text-[var(--sea-ink)]"
                         onClick={header.column.getToggleSortingHandler()}
                       >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                         {header.column.getIsSorted() === 'asc' ? (
                           <ChevronUp className="size-3" />
                         ) : header.column.getIsSorted() === 'desc' ? (
@@ -326,14 +356,20 @@ function UsersPage() {
           <tbody className="divide-y divide-[var(--line)]">
             {error ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-10 text-center text-destructive">
+                <td
+                  colSpan={columns.length}
+                  className="px-4 py-10 text-center text-destructive"
+                >
                   {error}{' '}
-                  <button className="underline" onClick={() => setRefreshKey((k) => k + 1)}>
+                  <button
+                    className="underline"
+                    onClick={() => setRefreshKey((k) => k + 1)}
+                  >
                     Coba lagi
                   </button>
                 </td>
               </tr>
-            ) : loading && users.length === 0 ? (
+            ) : loading && tenants.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length}
@@ -348,12 +384,15 @@ function UsersPage() {
                   colSpan={columns.length}
                   className="px-4 py-10 text-center text-[var(--sea-ink-soft)]"
                 >
-                  Tidak ada user ditemukan.
+                  Tidak ada tenant ditemukan.
                 </td>
               </tr>
             ) : (
               table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="bg-background transition-colors hover:bg-muted/30">
+                <tr
+                  key={row.id}
+                  className="bg-background transition-colors hover:bg-muted/30"
+                >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -366,7 +405,6 @@ function UsersPage() {
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--sea-ink-soft)]">
         <div className="flex items-center gap-1">
           <Button
@@ -375,7 +413,7 @@ function UsersPage() {
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage() || loading}
           >
-            «
+            {'<<'}
           </Button>
           <Button
             size="xs"
@@ -383,7 +421,7 @@ function UsersPage() {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage() || loading}
           >
-            ‹
+            {'<'}
           </Button>
           <span className="px-2">
             Hal {pagination.pageIndex + 1} / {pageCount}
@@ -394,7 +432,7 @@ function UsersPage() {
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage() || loading}
           >
-            ›
+            {'>'}
           </Button>
           <Button
             size="xs"
@@ -402,14 +440,16 @@ function UsersPage() {
             onClick={() => table.setPageIndex(pageCount - 1)}
             disabled={!table.getCanNextPage() || loading}
           >
-            »
+            {'>>'}
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <span>{totalCount} user</span>
+          <span>{totalCount} tenant</span>
           <Select
             value={String(pagination.pageSize)}
-            onValueChange={(v) => setPagination({ pageIndex: 0, pageSize: Number(v) })}
+            onValueChange={(v) =>
+              setPagination({ pageIndex: 0, pageSize: Number(v) })
+            }
           >
             <SelectTrigger size="sm" className="w-auto">
               <SelectValue />

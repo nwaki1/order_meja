@@ -166,7 +166,7 @@ async fn list_users(
     State(state): State<AppState>,
     Query(params): Query<ODataQuery>,
 ) -> Result<Json<ODataListResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "users:read")?;
 
     let top = params.top.min(100) as i64;
     let skip = params.skip as i64;
@@ -206,7 +206,7 @@ async fn create_user(
     State(state): State<AppState>,
     Json(body): Json<CreateUserRequest>,
 ) -> Result<(StatusCode, Json<UserResponse>)> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "users:create")?;
 
     if body.email.trim().is_empty() {
         return Err(AppError::validation(
@@ -275,7 +275,7 @@ async fn get_user(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<UserResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "users:read")?;
 
     let found = sqlx::query_as::<_, UserResponse>(
         "SELECT id, email, name, role, created_at, updated_at FROM users WHERE id = $1",
@@ -294,7 +294,7 @@ async fn update_user(
     Path(id): Path<Uuid>,
     Json(body): Json<UpdateUserRequest>,
 ) -> Result<Json<UserResponse>> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "users:update")?;
 
     if let Some(ref email) = body.email {
         if email.trim().is_empty() {
@@ -379,7 +379,7 @@ async fn delete_user(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode> {
-    auth::require_role(&user, "admin")?;
+    auth::require_permission(&user, "users:delete")?;
 
     if user.id == id {
         return Err(AppError::BadRequest(

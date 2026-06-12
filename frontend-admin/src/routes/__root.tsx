@@ -13,7 +13,7 @@ import {
 
 import appCss from '../styles.css?url'
 
-const THEME_INIT_SCRIPT = `(function(){try{var themeKey='theme';var sessionKey='sportiva_admin_session';var readMode=function(value){return value==='light'||value==='dark'||value==='auto'?value:null;};var mode=null;try{var rawSession=window.localStorage.getItem(sessionKey);if(rawSession){var parsed=JSON.parse(rawSession);mode=readMode(parsed&&parsed.user&&(parsed.user.themeMode||parsed.user.theme_mode));}}catch(e){}if(!mode){mode=readMode(window.localStorage.getItem(themeKey))||'auto';}var prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
+const THEME_INIT_SCRIPT = `(function(){try{var themeKey='theme';var sessionKey='sportiva_session';var legacySessionKey='sportiva_admin_session';var readMode=function(value){return value==='light'||value==='dark'||value==='auto'?value:null;};var mode=null;try{var rawSession=window.localStorage.getItem(sessionKey)||window.localStorage.getItem(legacySessionKey);if(rawSession){var parsed=JSON.parse(rawSession);mode=readMode(parsed&&parsed.user&&(parsed.user.themeMode||parsed.user.theme_mode));}}catch(e){}if(!mode){mode=readMode(window.localStorage.getItem(themeKey))||'auto';}var prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
 
 export const Route = createRootRoute({
   head: () => ({
@@ -113,10 +113,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
               <SidebarTrigger />
               <div className="min-w-0">
                 <p className="m-0 text-xs uppercase tracking-[0.18em] text-[var(--sea-ink-soft)]">
-                  Admin
+                  Workspace
                 </p>
                 <h1 className="m-0 text-sm font-semibold text-[var(--sea-ink)]">
-                  Admin Workspace
+                  Sportiva Workspace
                 </h1>
               </div>
             </div>

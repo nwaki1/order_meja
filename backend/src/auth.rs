@@ -242,7 +242,7 @@ pub async fn require_tenant_access(
     user: &AuthUser,
     tenant_id: uuid::Uuid,
 ) -> Result<()> {
-    if user.role == "admin" {
+    if user.permissions.contains("tenants:read") {
         return Ok(());
     }
 
