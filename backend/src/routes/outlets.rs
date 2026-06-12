@@ -93,6 +93,7 @@ pub struct CreateOutletRequest {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct UpdateOutletRequest {
     pub code: Option<String>,
     pub name: Option<String>,
@@ -644,26 +645,53 @@ async fn transfer_outlet(
     Json(body): Json<TransferOutletRequest>,
 ) -> Result<Json<OutletOwnershipResponse>> {
     auth::require_permission(&user, "outlet_ownerships:transfer")?;
-    ensure_active_tenant(&state.db, body.tenant_id).await?;
 
     let mut tx = state.db.begin().await?;
-    let current_tenant_id = sqlx::query_scalar::<_, Uuid>(
+
+    let outlet_is_active = sqlx::query_scalar::<_, bool>(
         r#"
-        SELECT oo.tenant_id
-        FROM outlets o
-        JOIN outlet_ownerships oo ON oo.outlet_id = o.id
-        WHERE o.id = $1
-          AND o.is_active = TRUE
-          AND oo.valid_until IS NULL
-        FOR UPDATE OF o, oo
+        SELECT is_active
+        FROM outlets
+        WHERE id = $1
+        FOR UPDATE
         "#,
     )
     .bind(id)
     .fetch_optional(&mut *tx)
     .await?
-    .ok_or_else(|| AppError::NotFound("Outlet aktif tidak ditemukan".into()))?;
+    .ok_or_else(|| AppError::NotFound("Outlet tidak ditemukan".into()))?;
 
-    if current_tenant_id == body.tenant_id {
+    if !outlet_is_active {
+        return Err(AppError::BadRequest("Outlet tidak aktif".into()));
+    }
+
+    let target_tenant_id = sqlx::query_scalar::<_, Uuid>(
+        r#"
+        SELECT id
+        FROM tenants
+        WHERE id = $1 AND is_active = TRUE
+        FOR SHARE
+        "#,
+    )
+    .bind(body.tenant_id)
+    .fetch_optional(&mut *tx)
+    .await?
+    .ok_or_else(|| AppError::NotFound("Tenant tujuan tidak ditemukan atau tidak aktif".into()))?;
+
+    let current_tenant_id = sqlx::query_scalar::<_, Uuid>(
+        r#"
+        SELECT tenant_id
+        FROM outlet_ownerships
+        WHERE outlet_id = $1 AND valid_until IS NULL
+        FOR UPDATE
+        "#,
+    )
+    .bind(id)
+    .fetch_optional(&mut *tx)
+    .await?
+    .ok_or_else(|| AppError::NotFound("Ownership aktif outlet tidak ditemukan".into()))?;
+
+    if current_tenant_id == target_tenant_id {
         return Err(AppError::BadRequest(
             "Target tenant sama dengan owner aktif outlet".into(),
         ));
@@ -702,8 +730,19 @@ async fn transfer_outlet(
         "#,
     )
     .bind(id)
-    .bind(body.tenant_id)
+    .bind(target_tenant_id)
     .fetch_one(&mut *tx)
+    .await?;
+
+    sqlx::query(
+        r#"
+        UPDATE user_outlets
+        SET is_active = FALSE, updated_at = NOW()
+        WHERE outlet_id = $1 AND is_active = TRUE
+        "#,
+    )
+    .bind(id)
+    .execute(&mut *tx)
     .await?;
 
     tx.commit().await?;
