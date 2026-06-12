@@ -271,6 +271,47 @@ pub async fn require_tenant_access(
     }
 }
 
+pub async fn require_outlet_access(
+    db: &sqlx::PgPool,
+    user: &AuthUser,
+    outlet_id: uuid::Uuid,
+) -> Result<()> {
+    if user.permissions.contains("outlets:read") {
+        return Ok(());
+    }
+
+    let has_access = sqlx::query_scalar::<_, bool>(
+        r#"
+        SELECT EXISTS(
+            SELECT 1
+            FROM outlets o
+            JOIN user_outlets uo ON uo.outlet_id = o.id
+            JOIN outlet_ownerships oo ON oo.outlet_id = o.id
+            JOIN tenants t ON t.id = oo.tenant_id
+            JOIN user_tenants ut ON ut.tenant_id = oo.tenant_id
+            WHERE o.id = $1
+              AND o.is_active = TRUE
+              AND uo.user_id = $2
+              AND uo.is_active = TRUE
+              AND oo.valid_until IS NULL
+              AND t.is_active = TRUE
+              AND ut.user_id = $2
+              AND ut.is_active = TRUE
+        )
+        "#,
+    )
+    .bind(outlet_id)
+    .bind(user.id)
+    .fetch_one(db)
+    .await?;
+
+    if has_access {
+        Ok(())
+    } else {
+        Err(AppError::Forbidden)
+    }
+}
+
 pub async fn bootstrap_admin_if_configured(db: &sqlx::PgPool) -> Result<()> {
     let email = match std::env::var("BOOTSTRAP_ADMIN_EMAIL") {
         Ok(v) if !v.trim().is_empty() => v,
