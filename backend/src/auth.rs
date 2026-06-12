@@ -237,6 +237,40 @@ pub fn require_permission(user: &AuthUser, permission: &str) -> Result<()> {
     }
 }
 
+pub async fn require_tenant_access(
+    db: &sqlx::PgPool,
+    user: &AuthUser,
+    tenant_id: uuid::Uuid,
+) -> Result<()> {
+    if user.role == "admin" {
+        return Ok(());
+    }
+
+    let has_access = sqlx::query_scalar::<_, bool>(
+        r#"
+        SELECT EXISTS(
+            SELECT 1
+            FROM user_tenants ut
+            JOIN tenants t ON t.id = ut.tenant_id
+            WHERE ut.user_id = $1
+              AND ut.tenant_id = $2
+              AND ut.is_active = TRUE
+              AND t.is_active = TRUE
+        )
+        "#,
+    )
+    .bind(user.id)
+    .bind(tenant_id)
+    .fetch_one(db)
+    .await?;
+
+    if has_access {
+        Ok(())
+    } else {
+        Err(AppError::Forbidden)
+    }
+}
+
 pub async fn bootstrap_admin_if_configured(db: &sqlx::PgPool) -> Result<()> {
     let email = match std::env::var("BOOTSTRAP_ADMIN_EMAIL") {
         Ok(v) if !v.trim().is_empty() => v,
