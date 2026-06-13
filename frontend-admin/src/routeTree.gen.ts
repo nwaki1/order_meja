@@ -21,6 +21,7 @@ import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as ProductCategoriesIndexRouteImport } from './routes/product-categories/index'
 import { Route as PosIndexRouteImport } from './routes/pos/index'
 import { Route as PermissionsIndexRouteImport } from './routes/permissions/index'
+import { Route as PayrollPeriodsIndexRouteImport } from './routes/payroll-periods/index'
 import { Route as OutletsIndexRouteImport } from './routes/outlets/index'
 import { Route as WorkersNewRouteImport } from './routes/workers/new'
 import { Route as UsersNewRouteImport } from './routes/users/new'
@@ -33,6 +34,7 @@ import { Route as ProductsNewRouteImport } from './routes/products/new'
 import { Route as ProductCategoriesNewRouteImport } from './routes/product-categories/new'
 import { Route as PermissionsNewRouteImport } from './routes/permissions/new'
 import { Route as PermissionsPermissionNameRouteImport } from './routes/permissions/$permissionName'
+import { Route as PayrollPeriodsNewRouteImport } from './routes/payroll-periods/new'
 import { Route as OutletsNewRouteImport } from './routes/outlets/new'
 import { Route as WorkersWorkerIdIndexRouteImport } from './routes/workers/$workerId/index'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
@@ -43,6 +45,8 @@ import { Route as RolesRoleNameIndexRouteImport } from './routes/roles/$roleName
 import { Route as ProductsProductIdIndexRouteImport } from './routes/products/$productId/index'
 import { Route as ProductCategoriesCategoryIdIndexRouteImport } from './routes/product-categories/$categoryId/index'
 import { Route as PermissionsPermissionNameIndexRouteImport } from './routes/permissions/$permissionName/index'
+import { Route as PayrollsPayrollIdIndexRouteImport } from './routes/payrolls/$payrollId/index'
+import { Route as PayrollPeriodsPeriodIdIndexRouteImport } from './routes/payroll-periods/$periodId/index'
 import { Route as OutletsOutletIdIndexRouteImport } from './routes/outlets/$outletId/index'
 import { Route as WorkersWorkerIdEditRouteImport } from './routes/workers/$workerId/edit'
 import { Route as UsersUserIdEditRouteImport } from './routes/users/$userId/edit'
@@ -116,6 +120,11 @@ const PermissionsIndexRoute = PermissionsIndexRouteImport.update({
   path: '/permissions/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PayrollPeriodsIndexRoute = PayrollPeriodsIndexRouteImport.update({
+  id: '/payroll-periods/',
+  path: '/payroll-periods/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OutletsIndexRoute = OutletsIndexRouteImport.update({
   id: '/outlets/',
   path: '/outlets/',
@@ -177,6 +186,11 @@ const PermissionsPermissionNameRoute =
     path: '/permissions/$permissionName',
     getParentRoute: () => rootRouteImport,
   } as any)
+const PayrollPeriodsNewRoute = PayrollPeriodsNewRouteImport.update({
+  id: '/payroll-periods/new',
+  path: '/payroll-periods/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OutletsNewRoute = OutletsNewRouteImport.update({
   id: '/outlets/new',
   path: '/outlets/new',
@@ -229,6 +243,17 @@ const PermissionsPermissionNameIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => PermissionsPermissionNameRoute,
+  } as any)
+const PayrollsPayrollIdIndexRoute = PayrollsPayrollIdIndexRouteImport.update({
+  id: '/payrolls/$payrollId/',
+  path: '/payrolls/$payrollId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayrollPeriodsPeriodIdIndexRoute =
+  PayrollPeriodsPeriodIdIndexRouteImport.update({
+    id: '/payroll-periods/$periodId/',
+    path: '/payroll-periods/$periodId/',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const OutletsOutletIdIndexRoute = OutletsOutletIdIndexRouteImport.update({
   id: '/outlets/$outletId/',
@@ -298,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/outlets/new': typeof OutletsNewRoute
+  '/payroll-periods/new': typeof PayrollPeriodsNewRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameRouteWithChildren
   '/permissions/new': typeof PermissionsNewRoute
   '/product-categories/new': typeof ProductCategoriesNewRoute
@@ -310,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/users/new': typeof UsersNewRoute
   '/workers/new': typeof WorkersNewRoute
   '/outlets/': typeof OutletsIndexRoute
+  '/payroll-periods/': typeof PayrollPeriodsIndexRoute
   '/permissions/': typeof PermissionsIndexRoute
   '/pos/': typeof PosIndexRoute
   '/product-categories/': typeof ProductCategoriesIndexRoute
@@ -332,6 +359,8 @@ export interface FileRoutesByFullPath {
   '/users/$userId/edit': typeof UsersUserIdEditRoute
   '/workers/$workerId/edit': typeof WorkersWorkerIdEditRoute
   '/outlets/$outletId/': typeof OutletsOutletIdIndexRoute
+  '/payroll-periods/$periodId/': typeof PayrollPeriodsPeriodIdIndexRoute
+  '/payrolls/$payrollId/': typeof PayrollsPayrollIdIndexRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/product-categories/$categoryId/': typeof ProductCategoriesCategoryIdIndexRoute
   '/products/$productId/': typeof ProductsProductIdIndexRoute
@@ -346,6 +375,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/outlets/new': typeof OutletsNewRoute
+  '/payroll-periods/new': typeof PayrollPeriodsNewRoute
   '/permissions/new': typeof PermissionsNewRoute
   '/product-categories/new': typeof ProductCategoriesNewRoute
   '/products/new': typeof ProductsNewRoute
@@ -355,6 +385,7 @@ export interface FileRoutesByTo {
   '/users/new': typeof UsersNewRoute
   '/workers/new': typeof WorkersNewRoute
   '/outlets': typeof OutletsIndexRoute
+  '/payroll-periods': typeof PayrollPeriodsIndexRoute
   '/permissions': typeof PermissionsIndexRoute
   '/pos': typeof PosIndexRoute
   '/product-categories': typeof ProductCategoriesIndexRoute
@@ -377,6 +408,8 @@ export interface FileRoutesByTo {
   '/users/$userId/edit': typeof UsersUserIdEditRoute
   '/workers/$workerId/edit': typeof WorkersWorkerIdEditRoute
   '/outlets/$outletId': typeof OutletsOutletIdIndexRoute
+  '/payroll-periods/$periodId': typeof PayrollPeriodsPeriodIdIndexRoute
+  '/payrolls/$payrollId': typeof PayrollsPayrollIdIndexRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameIndexRoute
   '/product-categories/$categoryId': typeof ProductCategoriesCategoryIdIndexRoute
   '/products/$productId': typeof ProductsProductIdIndexRoute
@@ -392,6 +425,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/outlets/new': typeof OutletsNewRoute
+  '/payroll-periods/new': typeof PayrollPeriodsNewRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameRouteWithChildren
   '/permissions/new': typeof PermissionsNewRoute
   '/product-categories/new': typeof ProductCategoriesNewRoute
@@ -404,6 +438,7 @@ export interface FileRoutesById {
   '/users/new': typeof UsersNewRoute
   '/workers/new': typeof WorkersNewRoute
   '/outlets/': typeof OutletsIndexRoute
+  '/payroll-periods/': typeof PayrollPeriodsIndexRoute
   '/permissions/': typeof PermissionsIndexRoute
   '/pos/': typeof PosIndexRoute
   '/product-categories/': typeof ProductCategoriesIndexRoute
@@ -426,6 +461,8 @@ export interface FileRoutesById {
   '/users/$userId/edit': typeof UsersUserIdEditRoute
   '/workers/$workerId/edit': typeof WorkersWorkerIdEditRoute
   '/outlets/$outletId/': typeof OutletsOutletIdIndexRoute
+  '/payroll-periods/$periodId/': typeof PayrollPeriodsPeriodIdIndexRoute
+  '/payrolls/$payrollId/': typeof PayrollsPayrollIdIndexRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/product-categories/$categoryId/': typeof ProductCategoriesCategoryIdIndexRoute
   '/products/$productId/': typeof ProductsProductIdIndexRoute
@@ -442,6 +479,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/outlets/new'
+    | '/payroll-periods/new'
     | '/permissions/$permissionName'
     | '/permissions/new'
     | '/product-categories/new'
@@ -454,6 +492,7 @@ export interface FileRouteTypes {
     | '/users/new'
     | '/workers/new'
     | '/outlets/'
+    | '/payroll-periods/'
     | '/permissions/'
     | '/pos/'
     | '/product-categories/'
@@ -476,6 +515,8 @@ export interface FileRouteTypes {
     | '/users/$userId/edit'
     | '/workers/$workerId/edit'
     | '/outlets/$outletId/'
+    | '/payroll-periods/$periodId/'
+    | '/payrolls/$payrollId/'
     | '/permissions/$permissionName/'
     | '/product-categories/$categoryId/'
     | '/products/$productId/'
@@ -490,6 +531,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/outlets/new'
+    | '/payroll-periods/new'
     | '/permissions/new'
     | '/product-categories/new'
     | '/products/new'
@@ -499,6 +541,7 @@ export interface FileRouteTypes {
     | '/users/new'
     | '/workers/new'
     | '/outlets'
+    | '/payroll-periods'
     | '/permissions'
     | '/pos'
     | '/product-categories'
@@ -521,6 +564,8 @@ export interface FileRouteTypes {
     | '/users/$userId/edit'
     | '/workers/$workerId/edit'
     | '/outlets/$outletId'
+    | '/payroll-periods/$periodId'
+    | '/payrolls/$payrollId'
     | '/permissions/$permissionName'
     | '/product-categories/$categoryId'
     | '/products/$productId'
@@ -535,6 +580,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/outlets/new'
+    | '/payroll-periods/new'
     | '/permissions/$permissionName'
     | '/permissions/new'
     | '/product-categories/new'
@@ -547,6 +593,7 @@ export interface FileRouteTypes {
     | '/users/new'
     | '/workers/new'
     | '/outlets/'
+    | '/payroll-periods/'
     | '/permissions/'
     | '/pos/'
     | '/product-categories/'
@@ -569,6 +616,8 @@ export interface FileRouteTypes {
     | '/users/$userId/edit'
     | '/workers/$workerId/edit'
     | '/outlets/$outletId/'
+    | '/payroll-periods/$periodId/'
+    | '/payrolls/$payrollId/'
     | '/permissions/$permissionName/'
     | '/product-categories/$categoryId/'
     | '/products/$productId/'
@@ -584,6 +633,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   OutletsNewRoute: typeof OutletsNewRoute
+  PayrollPeriodsNewRoute: typeof PayrollPeriodsNewRoute
   PermissionsPermissionNameRoute: typeof PermissionsPermissionNameRouteWithChildren
   PermissionsNewRoute: typeof PermissionsNewRoute
   ProductCategoriesNewRoute: typeof ProductCategoriesNewRoute
@@ -596,6 +646,7 @@ export interface RootRouteChildren {
   UsersNewRoute: typeof UsersNewRoute
   WorkersNewRoute: typeof WorkersNewRoute
   OutletsIndexRoute: typeof OutletsIndexRoute
+  PayrollPeriodsIndexRoute: typeof PayrollPeriodsIndexRoute
   PermissionsIndexRoute: typeof PermissionsIndexRoute
   PosIndexRoute: typeof PosIndexRoute
   ProductCategoriesIndexRoute: typeof ProductCategoriesIndexRoute
@@ -615,6 +666,8 @@ export interface RootRouteChildren {
   TenantsTenantIdEditRoute: typeof TenantsTenantIdEditRoute
   WorkersWorkerIdEditRoute: typeof WorkersWorkerIdEditRoute
   OutletsOutletIdIndexRoute: typeof OutletsOutletIdIndexRoute
+  PayrollPeriodsPeriodIdIndexRoute: typeof PayrollPeriodsPeriodIdIndexRoute
+  PayrollsPayrollIdIndexRoute: typeof PayrollsPayrollIdIndexRoute
   ProductCategoriesCategoryIdIndexRoute: typeof ProductCategoriesCategoryIdIndexRoute
   ProductsProductIdIndexRoute: typeof ProductsProductIdIndexRoute
   ShiftsShiftIdIndexRoute: typeof ShiftsShiftIdIndexRoute
@@ -709,6 +762,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PermissionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/payroll-periods/': {
+      id: '/payroll-periods/'
+      path: '/payroll-periods'
+      fullPath: '/payroll-periods/'
+      preLoaderRoute: typeof PayrollPeriodsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/outlets/': {
       id: '/outlets/'
       path: '/outlets'
@@ -793,6 +853,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PermissionsPermissionNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/payroll-periods/new': {
+      id: '/payroll-periods/new'
+      path: '/payroll-periods/new'
+      fullPath: '/payroll-periods/new'
+      preLoaderRoute: typeof PayrollPeriodsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/outlets/new': {
       id: '/outlets/new'
       path: '/outlets/new'
@@ -862,6 +929,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/permissions/$permissionName/'
       preLoaderRoute: typeof PermissionsPermissionNameIndexRouteImport
       parentRoute: typeof PermissionsPermissionNameRoute
+    }
+    '/payrolls/$payrollId/': {
+      id: '/payrolls/$payrollId/'
+      path: '/payrolls/$payrollId'
+      fullPath: '/payrolls/$payrollId/'
+      preLoaderRoute: typeof PayrollsPayrollIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payroll-periods/$periodId/': {
+      id: '/payroll-periods/$periodId/'
+      path: '/payroll-periods/$periodId'
+      fullPath: '/payroll-periods/$periodId/'
+      preLoaderRoute: typeof PayrollPeriodsPeriodIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/outlets/$outletId/': {
       id: '/outlets/$outletId/'
@@ -998,6 +1079,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   OutletsNewRoute: OutletsNewRoute,
+  PayrollPeriodsNewRoute: PayrollPeriodsNewRoute,
   PermissionsPermissionNameRoute: PermissionsPermissionNameRouteWithChildren,
   PermissionsNewRoute: PermissionsNewRoute,
   ProductCategoriesNewRoute: ProductCategoriesNewRoute,
@@ -1010,6 +1092,7 @@ const rootRouteChildren: RootRouteChildren = {
   UsersNewRoute: UsersNewRoute,
   WorkersNewRoute: WorkersNewRoute,
   OutletsIndexRoute: OutletsIndexRoute,
+  PayrollPeriodsIndexRoute: PayrollPeriodsIndexRoute,
   PermissionsIndexRoute: PermissionsIndexRoute,
   PosIndexRoute: PosIndexRoute,
   ProductCategoriesIndexRoute: ProductCategoriesIndexRoute,
@@ -1029,6 +1112,8 @@ const rootRouteChildren: RootRouteChildren = {
   TenantsTenantIdEditRoute: TenantsTenantIdEditRoute,
   WorkersWorkerIdEditRoute: WorkersWorkerIdEditRoute,
   OutletsOutletIdIndexRoute: OutletsOutletIdIndexRoute,
+  PayrollPeriodsPeriodIdIndexRoute: PayrollPeriodsPeriodIdIndexRoute,
+  PayrollsPayrollIdIndexRoute: PayrollsPayrollIdIndexRoute,
   ProductCategoriesCategoryIdIndexRoute: ProductCategoriesCategoryIdIndexRoute,
   ProductsProductIdIndexRoute: ProductsProductIdIndexRoute,
   ShiftsShiftIdIndexRoute: ShiftsShiftIdIndexRoute,

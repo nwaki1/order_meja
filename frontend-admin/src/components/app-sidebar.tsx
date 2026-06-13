@@ -14,6 +14,7 @@ import {
   Store,
   Tags,
   Users,
+  Wallet,
 } from 'lucide-react'
 
 import { useAuth } from '#/components/auth-provider.tsx'
@@ -101,6 +102,13 @@ const mainNav = [
     icon: Receipt,
     end: false,
     permission: 'transactions:read',
+  },
+  {
+    title: 'Payroll',
+    to: '/payroll-periods',
+    icon: Wallet,
+    end: false,
+    permission: 'payroll_periods:read',
   },
   {
     title: 'Roles',
