@@ -18,6 +18,8 @@ pub mod shift_templates;
 pub mod shifts;
 pub mod shift_targets;
 pub mod payroll;
+pub mod reports;
+pub mod files;
 
 use axum::Router;
 use crate::AppState;
@@ -57,4 +59,6 @@ pub fn api_router() -> Router<AppState> {
         .nest("/shift-targets", shift_targets::router())
         .nest("/payroll-periods", payroll::router())
         .nest("/payrolls", payroll::payroll_router())
+        .nest("/reports", reports::router())
+        .nest("/files", files::router())
 }

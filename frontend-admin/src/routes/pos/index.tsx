@@ -427,6 +427,15 @@ function PosPage() {
                         disabled={!sellable}
                         className="flex flex-col items-start gap-1 rounded-lg border border-[var(--line)] bg-background p-3 text-left transition-colors hover:border-primary/40 hover:bg-muted/40 disabled:cursor-not-allowed disabled:opacity-60"
                       >
+                        {item.image_url ? (
+                          <img
+                            src={item.image_url}
+                            alt=""
+                            className="mb-1 h-20 w-full rounded-md border border-[var(--line)] object-cover"
+                          />
+                        ) : (
+                          <div className="mb-1 h-20 w-full rounded-md border border-dashed border-[var(--line)]" />
+                        )}
                         <span className="text-xs text-[var(--sea-ink-soft)]">
                           {item.sku}
                         </span>

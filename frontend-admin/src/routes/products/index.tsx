@@ -146,10 +146,21 @@ function ProductsPage() {
       {
         accessorKey: 'name',
         header: 'Nama',
-        cell: (info) => (
-          <span className="font-medium text-[var(--sea-ink)]">
-            {info.getValue<string>()}
-          </span>
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2">
+            {row.original.image_url ? (
+              <img
+                src={row.original.image_url}
+                alt=""
+                className="size-8 shrink-0 rounded border border-[var(--line)] object-cover"
+              />
+            ) : (
+              <div className="size-8 shrink-0 rounded border border-dashed border-[var(--line)]" />
+            )}
+            <span className="font-medium text-[var(--sea-ink)]">
+              {row.original.name}
+            </span>
+          </div>
         ),
       },
       {

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Link, useRouter, useRouterState } from '@tanstack/react-router'
 import {
+  BarChart3,
   Building2,
   CalendarClock,
   HardHat,
@@ -109,6 +110,13 @@ const mainNav = [
     icon: Wallet,
     end: false,
     permission: 'payroll_periods:read',
+  },
+  {
+    title: 'Reports',
+    to: '/reports',
+    icon: BarChart3,
+    end: false,
+    permission: 'reports:read',
   },
   {
     title: 'Roles',

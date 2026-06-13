@@ -1,4 +1,6 @@
 import React from 'react'
+import { ImagePlus, X } from 'lucide-react'
+import { useAuth } from '#/components/auth-provider.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { Input } from '#/components/ui/input.tsx'
 import { Label } from '#/components/ui/label.tsx'
@@ -12,6 +14,7 @@ import {
 import { Switch } from '#/components/ui/switch.tsx'
 import { Textarea } from '#/components/ui/textarea.tsx'
 import type { ApiFieldErrors } from '#/lib/api.ts'
+import { uploadFile } from '#/lib/files.ts'
 import type { ProductCategory } from '#/lib/product-categories.ts'
 import type { Product } from '#/lib/products.ts'
 import type { Tenant } from '#/lib/tenants.ts'
@@ -26,6 +29,7 @@ export interface ProductFormData {
   sku: string
   name: string
   description: string
+  image_url: string
   unit: string
   is_stock_tracked: boolean
   is_active: boolean
@@ -56,6 +60,8 @@ export function ProductForm({
   onSubmit,
   onCancel,
 }: ProductFormProps) {
+  const { session } = useAuth()
+  const accessToken = session?.accessToken
   const formRef = React.useRef<HTMLFormElement | null>(null)
   const [form, setForm] = React.useState<ProductFormData>({
     tenant_id: initialData?.tenant_id ?? '',
@@ -63,6 +69,7 @@ export function ProductForm({
     sku: initialData?.sku ?? '',
     name: initialData?.name ?? '',
     description: initialData?.description ?? '',
+    image_url: initialData?.image_url ?? '',
     unit: initialData?.unit ?? 'pcs',
     is_stock_tracked: initialData?.is_stock_tracked ?? false,
     is_active: initialData?.is_active ?? true,
@@ -70,6 +77,8 @@ export function ProductForm({
   const [submitAttempted, setSubmitAttempted] = React.useState(false)
   const [serverFieldErrors, setServerFieldErrors] =
     React.useState<ProductFormFieldErrors>({})
+  const [uploading, setUploading] = React.useState(false)
+  const [uploadError, setUploadError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     if (initialData) {
@@ -79,12 +88,29 @@ export function ProductForm({
         sku: initialData.sku,
         name: initialData.name,
         description: initialData.description ?? '',
+        image_url: initialData.image_url ?? '',
         unit: initialData.unit ?? 'pcs',
         is_stock_tracked: initialData.is_stock_tracked,
         is_active: initialData.is_active,
       })
     }
   }, [initialData?.id, mode])
+
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow re-selecting the same file
+    if (!file || !accessToken) return
+    setUploading(true)
+    setUploadError(null)
+    try {
+      const uploaded = await uploadFile(accessToken, file, 'products')
+      setForm((current) => ({ ...current, image_url: uploaded.url }))
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Gagal upload gambar')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   React.useEffect(() => {
     setServerFieldErrors((fieldErrors ?? {}) as ProductFormFieldErrors)
@@ -319,6 +345,63 @@ export function ProductForm({
             {visibleErrors.description}
           </p>
         ) : null}
+      </div>
+
+      <div className="space-y-1.5 md:col-span-2">
+        <Label>Gambar Produk</Label>
+        <div className="flex items-center gap-4">
+          {form.image_url ? (
+            <img
+              src={form.image_url}
+              alt="Produk"
+              className="size-20 rounded-md border border-[var(--line)] object-cover"
+            />
+          ) : (
+            <div className="flex size-20 items-center justify-center rounded-md border border-dashed border-[var(--line)] text-[var(--sea-ink-soft)]">
+              <ImagePlus className="size-6" />
+            </div>
+          )}
+          {mode !== 'view' && (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--line)] px-3 py-1.5 text-sm text-[var(--sea-ink)] hover:bg-muted/40">
+                  <ImagePlus className="size-4" />
+                  {uploading ? 'Mengunggah...' : 'Pilih Gambar'}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                    className="hidden"
+                    onChange={handleImageChange}
+                    disabled={disabled || uploading}
+                  />
+                </label>
+                {form.image_url && (
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() =>
+                      setForm((current) => ({ ...current, image_url: '' }))
+                    }
+                    disabled={disabled || uploading}
+                  >
+                    <X />
+                    Hapus
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-[var(--sea-ink-soft)]">
+                JPG/PNG/WEBP, maks 10MB.
+              </p>
+              {uploadError && (
+                <p className="text-xs font-medium text-destructive">
+                  {uploadError}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="space-y-1.5">

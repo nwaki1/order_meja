@@ -16,6 +16,10 @@ frontend-admin/.expo/
 frontend-admin/dist/
 frontend-admin/.env
 
+# Deploy (local only — not committed)
+/deploy.sh
+/deploy/
+
 # OS
 .DS_Store
 Thumbs.db

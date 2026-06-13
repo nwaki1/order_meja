@@ -166,7 +166,18 @@ function OutletCatalogPage() {
                     {item.sku}
                   </td>
                   <td className="px-4 py-3 text-[var(--sea-ink)]">
-                    {item.name}
+                    <div className="flex items-center gap-2">
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt=""
+                          className="size-8 shrink-0 rounded border border-[var(--line)] object-cover"
+                        />
+                      ) : (
+                        <div className="size-8 shrink-0 rounded border border-dashed border-[var(--line)]" />
+                      )}
+                      {item.name}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-[var(--sea-ink-soft)]">
                     {item.category_name ?? '-'}

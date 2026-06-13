@@ -14,6 +14,7 @@ export interface CatalogItem {
   sku: string
   name: string
   description: string | null
+  image_url: string | null
   category_id: string | null
   category_name: string | null
   price: number | null

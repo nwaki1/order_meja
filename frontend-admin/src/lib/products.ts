@@ -11,6 +11,7 @@ export interface Product {
   sku: string
   name: string
   description: string | null
+  image_url: string | null
   unit: string
   is_stock_tracked: boolean
   is_active: boolean
@@ -24,6 +25,7 @@ export interface CreateProductPayload {
   sku: string
   name: string
   description?: string
+  image_url?: string
   unit?: string
   is_stock_tracked?: boolean
 }
@@ -33,6 +35,7 @@ export interface UpdateProductPayload {
   sku?: string
   name?: string
   description?: string
+  image_url?: string
   unit?: string
   is_stock_tracked?: boolean
   is_active?: boolean

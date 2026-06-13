@@ -78,6 +78,7 @@ function ProductEditPage() {
         sku: data.sku.trim(),
         name: data.name.trim(),
         description: data.description.trim() || undefined,
+        image_url: data.image_url.trim() || undefined,
         unit: data.unit.trim() || undefined,
         is_stock_tracked: data.is_stock_tracked,
         is_active: data.is_active,

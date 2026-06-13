@@ -23,6 +23,7 @@ pub struct CatalogItem {
     pub sku: String,
     pub name: String,
     pub description: Option<String>,
+    pub image_url: Option<String>,
     pub category_id: Option<Uuid>,
     pub category_name: Option<String>,
     // Active price at this outlet; null when no price has been set yet.
@@ -77,6 +78,7 @@ async fn get_outlet_catalog(
             p.sku,
             p.name,
             p.description,
+            p.image_url,
             p.category_id,
             pc.name AS category_name,
             pp.price
