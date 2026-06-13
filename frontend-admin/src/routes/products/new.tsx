@@ -72,6 +72,8 @@ function NewProductPage() {
         sku: data.sku.trim(),
         name: data.name.trim(),
         description: data.description.trim() || undefined,
+        unit: data.unit.trim() || undefined,
+        is_stock_tracked: data.is_stock_tracked,
       })
       router.navigate({
         to: '/products/$productId',

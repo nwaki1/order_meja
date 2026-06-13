@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select.tsx'
+import { Switch } from '#/components/ui/switch.tsx'
 import { Textarea } from '#/components/ui/textarea.tsx'
 import type { ApiFieldErrors } from '#/lib/api.ts'
 import type { ProductCategory } from '#/lib/product-categories.ts'
@@ -25,6 +26,8 @@ export interface ProductFormData {
   sku: string
   name: string
   description: string
+  unit: string
+  is_stock_tracked: boolean
   is_active: boolean
 }
 
@@ -60,6 +63,8 @@ export function ProductForm({
     sku: initialData?.sku ?? '',
     name: initialData?.name ?? '',
     description: initialData?.description ?? '',
+    unit: initialData?.unit ?? 'pcs',
+    is_stock_tracked: initialData?.is_stock_tracked ?? false,
     is_active: initialData?.is_active ?? true,
   })
   const [submitAttempted, setSubmitAttempted] = React.useState(false)
@@ -74,6 +79,8 @@ export function ProductForm({
         sku: initialData.sku,
         name: initialData.name,
         description: initialData.description ?? '',
+        unit: initialData.unit ?? 'pcs',
+        is_stock_tracked: initialData.is_stock_tracked,
         is_active: initialData.is_active,
       })
     }
@@ -312,6 +319,54 @@ export function ProductForm({
             {visibleErrors.description}
           </p>
         ) : null}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="pf-unit">Satuan</Label>
+        {mode === 'view' ? (
+          <Input id="pf-unit" value={form.unit || '-'} disabled />
+        ) : (
+          <Input
+            id="pf-unit"
+            placeholder="pcs"
+            value={form.unit}
+            onChange={(e) => {
+              const value = e.target.value
+              setForm((current) => ({ ...current, unit: value }))
+            }}
+            disabled={disabled}
+          />
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="pf-tracked">Lacak Stok</Label>
+        {mode === 'view' ? (
+          <Input
+            id="pf-tracked"
+            value={form.is_stock_tracked ? 'Ya' : 'Tidak'}
+            disabled
+          />
+        ) : (
+          <div className="flex h-9 items-center gap-2">
+            <Switch
+              id="pf-tracked"
+              checked={form.is_stock_tracked}
+              onCheckedChange={(checked) =>
+                setForm((current) => ({
+                  ...current,
+                  is_stock_tracked: checked,
+                }))
+              }
+              disabled={disabled}
+            />
+            <span className="text-sm text-[var(--sea-ink-soft)]">
+              {form.is_stock_tracked
+                ? 'Stok produk dilacak per outlet'
+                : 'Produk tanpa pelacakan stok'}
+            </span>
+          </div>
+        )}
       </div>
 
       {(mode === 'edit' || mode === 'view') && (

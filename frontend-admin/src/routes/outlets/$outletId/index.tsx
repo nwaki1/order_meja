@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   ArrowRightLeft,
   BookOpen,
+  Boxes,
   Pencil,
   Trash2,
   UserPlus,
@@ -284,6 +285,16 @@ function OutletDetailPage() {
             >
               <BookOpen />
               Katalog
+            </Link>
+          </Button>
+
+          <Button size="sm" variant="outline" asChild>
+            <Link
+              to="/outlets/$outletId/stocks"
+              params={{ outletId: outlet.id }}
+            >
+              <Boxes />
+              Stok
             </Link>
           </Button>
 

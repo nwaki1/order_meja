@@ -20,6 +20,8 @@ pub struct ProductResponse {
     pub sku: String,
     pub name: String,
     pub description: Option<String>,
+    pub unit: String,
+    pub is_stock_tracked: bool,
     pub is_active: bool,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
@@ -60,6 +62,8 @@ pub struct CreateProductRequest {
     pub sku: String,
     pub name: String,
     pub description: Option<String>,
+    pub unit: Option<String>,
+    pub is_stock_tracked: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -69,6 +73,8 @@ pub struct UpdateProductRequest {
     pub sku: Option<String>,
     pub name: Option<String>,
     pub description: Option<String>,
+    pub unit: Option<String>,
+    pub is_stock_tracked: Option<bool>,
     pub is_active: Option<bool>,
 }
 
@@ -244,6 +250,8 @@ async fn fetch_product(db: &sqlx::PgPool, product_id: Uuid) -> Result<ProductRes
             p.sku,
             p.name,
             p.description,
+            p.unit,
+            p.is_stock_tracked,
             p.is_active,
             p.created_at,
             p.updated_at
@@ -334,6 +342,8 @@ async fn list_products(
             p.sku,
             p.name,
             p.description,
+            p.unit,
+            p.is_stock_tracked,
             p.is_active,
             p.created_at,
             p.updated_at
@@ -398,6 +408,8 @@ async fn create_product(
     let sku = validate_product_sku(&body.sku)?;
     let name = validate_product_name(&body.name)?;
     let description = normalize_optional_text(body.description.as_deref());
+    let unit = normalize_optional_text(body.unit.as_deref()).unwrap_or_else(|| "pcs".to_string());
+    let is_stock_tracked = body.is_stock_tracked.unwrap_or(false);
 
     if let Some(category_id) = body.category_id {
         ensure_category_in_tenant(&state.db, category_id, body.tenant_id).await?;
@@ -405,8 +417,8 @@ async fn create_product(
 
     let product_id = sqlx::query_scalar::<_, Uuid>(
         r#"
-        INSERT INTO products (tenant_id, category_id, sku, name, description)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO products (tenant_id, category_id, sku, name, description, unit, is_stock_tracked)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING id
         "#,
     )
@@ -415,6 +427,8 @@ async fn create_product(
     .bind(sku)
     .bind(name)
     .bind(description.as_deref())
+    .bind(&unit)
+    .bind(is_stock_tracked)
     .fetch_one(&state.db)
     .await
     .map_err(map_product_db_error)?;
@@ -451,6 +465,7 @@ async fn update_product(
         None => None,
     };
     let description = normalize_optional_text(body.description.as_deref());
+    let unit = normalize_optional_text(body.unit.as_deref());
 
     if let Some(category_id) = body.category_id {
         ensure_category_in_tenant(&state.db, category_id, tenant_id).await?;
@@ -459,12 +474,14 @@ async fn update_product(
     let result = sqlx::query(
         r#"
         UPDATE products SET
-            category_id = COALESCE($2, category_id),
-            sku         = COALESCE($3, sku),
-            name        = COALESCE($4, name),
-            description = COALESCE($5, description),
-            is_active   = COALESCE($6, is_active),
-            updated_at  = NOW()
+            category_id      = COALESCE($2, category_id),
+            sku              = COALESCE($3, sku),
+            name             = COALESCE($4, name),
+            description      = COALESCE($5, description),
+            unit             = COALESCE($6, unit),
+            is_stock_tracked = COALESCE($7, is_stock_tracked),
+            is_active        = COALESCE($8, is_active),
+            updated_at       = NOW()
         WHERE id = $1
         "#,
     )
@@ -473,6 +490,8 @@ async fn update_product(
     .bind(sku)
     .bind(name)
     .bind(description.as_deref())
+    .bind(unit.as_deref())
+    .bind(body.is_stock_tracked)
     .bind(body.is_active)
     .execute(&state.db)
     .await
