@@ -13,9 +13,18 @@ export interface Transaction {
   discount_amount: number
   total_amount: number
   status: string
+  shift_id: string | null
+  shift_name: string | null
+  shift_work_date: string | null
   transaction_at: string
   created_at: string
   updated_at: string
+}
+
+export interface TransactionShiftWorker {
+  worker_id: string
+  code: string
+  name: string
 }
 
 export interface TransactionItem {
@@ -40,6 +49,7 @@ export interface TransactionPayment {
 export interface TransactionDetail extends Transaction {
   items: TransactionItem[]
   payments: TransactionPayment[]
+  shift_workers: TransactionShiftWorker[]
 }
 
 export interface TransactionListParams {

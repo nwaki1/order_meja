@@ -11,18 +11,22 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkersIndexRouteImport } from './routes/workers/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as TransactionsIndexRouteImport } from './routes/transactions/index'
 import { Route as TenantsIndexRouteImport } from './routes/tenants/index'
+import { Route as ShiftsIndexRouteImport } from './routes/shifts/index'
 import { Route as RolesIndexRouteImport } from './routes/roles/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as ProductCategoriesIndexRouteImport } from './routes/product-categories/index'
 import { Route as PosIndexRouteImport } from './routes/pos/index'
 import { Route as PermissionsIndexRouteImport } from './routes/permissions/index'
 import { Route as OutletsIndexRouteImport } from './routes/outlets/index'
+import { Route as WorkersNewRouteImport } from './routes/workers/new'
 import { Route as UsersNewRouteImport } from './routes/users/new'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
 import { Route as TenantsNewRouteImport } from './routes/tenants/new'
+import { Route as ShiftsNewRouteImport } from './routes/shifts/new'
 import { Route as RolesNewRouteImport } from './routes/roles/new'
 import { Route as RolesRoleNameRouteImport } from './routes/roles/$roleName'
 import { Route as ProductsNewRouteImport } from './routes/products/new'
@@ -30,14 +34,17 @@ import { Route as ProductCategoriesNewRouteImport } from './routes/product-categ
 import { Route as PermissionsNewRouteImport } from './routes/permissions/new'
 import { Route as PermissionsPermissionNameRouteImport } from './routes/permissions/$permissionName'
 import { Route as OutletsNewRouteImport } from './routes/outlets/new'
+import { Route as WorkersWorkerIdIndexRouteImport } from './routes/workers/$workerId/index'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
 import { Route as TransactionsTransactionIdIndexRouteImport } from './routes/transactions/$transactionId/index'
 import { Route as TenantsTenantIdIndexRouteImport } from './routes/tenants/$tenantId/index'
+import { Route as ShiftsShiftIdIndexRouteImport } from './routes/shifts/$shiftId/index'
 import { Route as RolesRoleNameIndexRouteImport } from './routes/roles/$roleName/index'
 import { Route as ProductsProductIdIndexRouteImport } from './routes/products/$productId/index'
 import { Route as ProductCategoriesCategoryIdIndexRouteImport } from './routes/product-categories/$categoryId/index'
 import { Route as PermissionsPermissionNameIndexRouteImport } from './routes/permissions/$permissionName/index'
 import { Route as OutletsOutletIdIndexRouteImport } from './routes/outlets/$outletId/index'
+import { Route as WorkersWorkerIdEditRouteImport } from './routes/workers/$workerId/edit'
 import { Route as UsersUserIdEditRouteImport } from './routes/users/$userId/edit'
 import { Route as TenantsTenantIdEditRouteImport } from './routes/tenants/$tenantId/edit'
 import { Route as RolesRoleNameEditRouteImport } from './routes/roles/$roleName/edit'
@@ -45,6 +52,7 @@ import { Route as ProductsProductIdEditRouteImport } from './routes/products/$pr
 import { Route as ProductCategoriesCategoryIdEditRouteImport } from './routes/product-categories/$categoryId/edit'
 import { Route as PermissionsPermissionNameEditRouteImport } from './routes/permissions/$permissionName/edit'
 import { Route as OutletsOutletIdStocksRouteImport } from './routes/outlets/$outletId/stocks'
+import { Route as OutletsOutletIdShiftTemplatesRouteImport } from './routes/outlets/$outletId/shift-templates'
 import { Route as OutletsOutletIdEditRouteImport } from './routes/outlets/$outletId/edit'
 import { Route as OutletsOutletIdCatalogRouteImport } from './routes/outlets/$outletId/catalog'
 
@@ -56,6 +64,11 @@ const LoginRoute = LoginRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkersIndexRoute = WorkersIndexRouteImport.update({
+  id: '/workers/',
+  path: '/workers/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsersIndexRoute = UsersIndexRouteImport.update({
@@ -71,6 +84,11 @@ const TransactionsIndexRoute = TransactionsIndexRouteImport.update({
 const TenantsIndexRoute = TenantsIndexRouteImport.update({
   id: '/tenants/',
   path: '/tenants/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShiftsIndexRoute = ShiftsIndexRouteImport.update({
+  id: '/shifts/',
+  path: '/shifts/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RolesIndexRoute = RolesIndexRouteImport.update({
@@ -103,6 +121,11 @@ const OutletsIndexRoute = OutletsIndexRouteImport.update({
   path: '/outlets/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkersNewRoute = WorkersNewRouteImport.update({
+  id: '/workers/new',
+  path: '/workers/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsersNewRoute = UsersNewRouteImport.update({
   id: '/users/new',
   path: '/users/new',
@@ -116,6 +139,11 @@ const UsersUserIdRoute = UsersUserIdRouteImport.update({
 const TenantsNewRoute = TenantsNewRouteImport.update({
   id: '/tenants/new',
   path: '/tenants/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShiftsNewRoute = ShiftsNewRouteImport.update({
+  id: '/shifts/new',
+  path: '/shifts/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RolesNewRoute = RolesNewRouteImport.update({
@@ -154,6 +182,11 @@ const OutletsNewRoute = OutletsNewRouteImport.update({
   path: '/outlets/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkersWorkerIdIndexRoute = WorkersWorkerIdIndexRouteImport.update({
+  id: '/workers/$workerId/',
+  path: '/workers/$workerId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsersUserIdIndexRoute = UsersUserIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -168,6 +201,11 @@ const TransactionsTransactionIdIndexRoute =
 const TenantsTenantIdIndexRoute = TenantsTenantIdIndexRouteImport.update({
   id: '/tenants/$tenantId/',
   path: '/tenants/$tenantId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShiftsShiftIdIndexRoute = ShiftsShiftIdIndexRouteImport.update({
+  id: '/shifts/$shiftId/',
+  path: '/shifts/$shiftId/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RolesRoleNameIndexRoute = RolesRoleNameIndexRouteImport.update({
@@ -195,6 +233,11 @@ const PermissionsPermissionNameIndexRoute =
 const OutletsOutletIdIndexRoute = OutletsOutletIdIndexRouteImport.update({
   id: '/outlets/$outletId/',
   path: '/outlets/$outletId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkersWorkerIdEditRoute = WorkersWorkerIdEditRouteImport.update({
+  id: '/workers/$workerId/edit',
+  path: '/workers/$workerId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsersUserIdEditRoute = UsersUserIdEditRouteImport.update({
@@ -234,6 +277,12 @@ const OutletsOutletIdStocksRoute = OutletsOutletIdStocksRouteImport.update({
   path: '/outlets/$outletId/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OutletsOutletIdShiftTemplatesRoute =
+  OutletsOutletIdShiftTemplatesRouteImport.update({
+    id: '/outlets/$outletId/shift-templates',
+    path: '/outlets/$outletId/shift-templates',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const OutletsOutletIdEditRoute = OutletsOutletIdEditRouteImport.update({
   id: '/outlets/$outletId/edit',
   path: '/outlets/$outletId/edit',
@@ -255,20 +304,25 @@ export interface FileRoutesByFullPath {
   '/products/new': typeof ProductsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
   '/roles/new': typeof RolesNewRoute
+  '/shifts/new': typeof ShiftsNewRoute
   '/tenants/new': typeof TenantsNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
+  '/workers/new': typeof WorkersNewRoute
   '/outlets/': typeof OutletsIndexRoute
   '/permissions/': typeof PermissionsIndexRoute
   '/pos/': typeof PosIndexRoute
   '/product-categories/': typeof ProductCategoriesIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/roles/': typeof RolesIndexRoute
+  '/shifts/': typeof ShiftsIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/transactions/': typeof TransactionsIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/workers/': typeof WorkersIndexRoute
   '/outlets/$outletId/catalog': typeof OutletsOutletIdCatalogRoute
   '/outlets/$outletId/edit': typeof OutletsOutletIdEditRoute
+  '/outlets/$outletId/shift-templates': typeof OutletsOutletIdShiftTemplatesRoute
   '/outlets/$outletId/stocks': typeof OutletsOutletIdStocksRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/product-categories/$categoryId/edit': typeof ProductCategoriesCategoryIdEditRoute
@@ -276,14 +330,17 @@ export interface FileRoutesByFullPath {
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/workers/$workerId/edit': typeof WorkersWorkerIdEditRoute
   '/outlets/$outletId/': typeof OutletsOutletIdIndexRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/product-categories/$categoryId/': typeof ProductCategoriesCategoryIdIndexRoute
   '/products/$productId/': typeof ProductsProductIdIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
+  '/shifts/$shiftId/': typeof ShiftsShiftIdIndexRoute
   '/tenants/$tenantId/': typeof TenantsTenantIdIndexRoute
   '/transactions/$transactionId/': typeof TransactionsTransactionIdIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
+  '/workers/$workerId/': typeof WorkersWorkerIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -293,19 +350,24 @@ export interface FileRoutesByTo {
   '/product-categories/new': typeof ProductCategoriesNewRoute
   '/products/new': typeof ProductsNewRoute
   '/roles/new': typeof RolesNewRoute
+  '/shifts/new': typeof ShiftsNewRoute
   '/tenants/new': typeof TenantsNewRoute
   '/users/new': typeof UsersNewRoute
+  '/workers/new': typeof WorkersNewRoute
   '/outlets': typeof OutletsIndexRoute
   '/permissions': typeof PermissionsIndexRoute
   '/pos': typeof PosIndexRoute
   '/product-categories': typeof ProductCategoriesIndexRoute
   '/products': typeof ProductsIndexRoute
   '/roles': typeof RolesIndexRoute
+  '/shifts': typeof ShiftsIndexRoute
   '/tenants': typeof TenantsIndexRoute
   '/transactions': typeof TransactionsIndexRoute
   '/users': typeof UsersIndexRoute
+  '/workers': typeof WorkersIndexRoute
   '/outlets/$outletId/catalog': typeof OutletsOutletIdCatalogRoute
   '/outlets/$outletId/edit': typeof OutletsOutletIdEditRoute
+  '/outlets/$outletId/shift-templates': typeof OutletsOutletIdShiftTemplatesRoute
   '/outlets/$outletId/stocks': typeof OutletsOutletIdStocksRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/product-categories/$categoryId/edit': typeof ProductCategoriesCategoryIdEditRoute
@@ -313,14 +375,17 @@ export interface FileRoutesByTo {
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/workers/$workerId/edit': typeof WorkersWorkerIdEditRoute
   '/outlets/$outletId': typeof OutletsOutletIdIndexRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameIndexRoute
   '/product-categories/$categoryId': typeof ProductCategoriesCategoryIdIndexRoute
   '/products/$productId': typeof ProductsProductIdIndexRoute
   '/roles/$roleName': typeof RolesRoleNameIndexRoute
+  '/shifts/$shiftId': typeof ShiftsShiftIdIndexRoute
   '/tenants/$tenantId': typeof TenantsTenantIdIndexRoute
   '/transactions/$transactionId': typeof TransactionsTransactionIdIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
+  '/workers/$workerId': typeof WorkersWorkerIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -333,20 +398,25 @@ export interface FileRoutesById {
   '/products/new': typeof ProductsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
   '/roles/new': typeof RolesNewRoute
+  '/shifts/new': typeof ShiftsNewRoute
   '/tenants/new': typeof TenantsNewRoute
   '/users/$userId': typeof UsersUserIdRouteWithChildren
   '/users/new': typeof UsersNewRoute
+  '/workers/new': typeof WorkersNewRoute
   '/outlets/': typeof OutletsIndexRoute
   '/permissions/': typeof PermissionsIndexRoute
   '/pos/': typeof PosIndexRoute
   '/product-categories/': typeof ProductCategoriesIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/roles/': typeof RolesIndexRoute
+  '/shifts/': typeof ShiftsIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/transactions/': typeof TransactionsIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/workers/': typeof WorkersIndexRoute
   '/outlets/$outletId/catalog': typeof OutletsOutletIdCatalogRoute
   '/outlets/$outletId/edit': typeof OutletsOutletIdEditRoute
+  '/outlets/$outletId/shift-templates': typeof OutletsOutletIdShiftTemplatesRoute
   '/outlets/$outletId/stocks': typeof OutletsOutletIdStocksRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
   '/product-categories/$categoryId/edit': typeof ProductCategoriesCategoryIdEditRoute
@@ -354,14 +424,17 @@ export interface FileRoutesById {
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
+  '/workers/$workerId/edit': typeof WorkersWorkerIdEditRoute
   '/outlets/$outletId/': typeof OutletsOutletIdIndexRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
   '/product-categories/$categoryId/': typeof ProductCategoriesCategoryIdIndexRoute
   '/products/$productId/': typeof ProductsProductIdIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
+  '/shifts/$shiftId/': typeof ShiftsShiftIdIndexRoute
   '/tenants/$tenantId/': typeof TenantsTenantIdIndexRoute
   '/transactions/$transactionId/': typeof TransactionsTransactionIdIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
+  '/workers/$workerId/': typeof WorkersWorkerIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -375,20 +448,25 @@ export interface FileRouteTypes {
     | '/products/new'
     | '/roles/$roleName'
     | '/roles/new'
+    | '/shifts/new'
     | '/tenants/new'
     | '/users/$userId'
     | '/users/new'
+    | '/workers/new'
     | '/outlets/'
     | '/permissions/'
     | '/pos/'
     | '/product-categories/'
     | '/products/'
     | '/roles/'
+    | '/shifts/'
     | '/tenants/'
     | '/transactions/'
     | '/users/'
+    | '/workers/'
     | '/outlets/$outletId/catalog'
     | '/outlets/$outletId/edit'
+    | '/outlets/$outletId/shift-templates'
     | '/outlets/$outletId/stocks'
     | '/permissions/$permissionName/edit'
     | '/product-categories/$categoryId/edit'
@@ -396,14 +474,17 @@ export interface FileRouteTypes {
     | '/roles/$roleName/edit'
     | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
+    | '/workers/$workerId/edit'
     | '/outlets/$outletId/'
     | '/permissions/$permissionName/'
     | '/product-categories/$categoryId/'
     | '/products/$productId/'
     | '/roles/$roleName/'
+    | '/shifts/$shiftId/'
     | '/tenants/$tenantId/'
     | '/transactions/$transactionId/'
     | '/users/$userId/'
+    | '/workers/$workerId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -413,19 +494,24 @@ export interface FileRouteTypes {
     | '/product-categories/new'
     | '/products/new'
     | '/roles/new'
+    | '/shifts/new'
     | '/tenants/new'
     | '/users/new'
+    | '/workers/new'
     | '/outlets'
     | '/permissions'
     | '/pos'
     | '/product-categories'
     | '/products'
     | '/roles'
+    | '/shifts'
     | '/tenants'
     | '/transactions'
     | '/users'
+    | '/workers'
     | '/outlets/$outletId/catalog'
     | '/outlets/$outletId/edit'
+    | '/outlets/$outletId/shift-templates'
     | '/outlets/$outletId/stocks'
     | '/permissions/$permissionName/edit'
     | '/product-categories/$categoryId/edit'
@@ -433,14 +519,17 @@ export interface FileRouteTypes {
     | '/roles/$roleName/edit'
     | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
+    | '/workers/$workerId/edit'
     | '/outlets/$outletId'
     | '/permissions/$permissionName'
     | '/product-categories/$categoryId'
     | '/products/$productId'
     | '/roles/$roleName'
+    | '/shifts/$shiftId'
     | '/tenants/$tenantId'
     | '/transactions/$transactionId'
     | '/users/$userId'
+    | '/workers/$workerId'
   id:
     | '__root__'
     | '/'
@@ -452,20 +541,25 @@ export interface FileRouteTypes {
     | '/products/new'
     | '/roles/$roleName'
     | '/roles/new'
+    | '/shifts/new'
     | '/tenants/new'
     | '/users/$userId'
     | '/users/new'
+    | '/workers/new'
     | '/outlets/'
     | '/permissions/'
     | '/pos/'
     | '/product-categories/'
     | '/products/'
     | '/roles/'
+    | '/shifts/'
     | '/tenants/'
     | '/transactions/'
     | '/users/'
+    | '/workers/'
     | '/outlets/$outletId/catalog'
     | '/outlets/$outletId/edit'
+    | '/outlets/$outletId/shift-templates'
     | '/outlets/$outletId/stocks'
     | '/permissions/$permissionName/edit'
     | '/product-categories/$categoryId/edit'
@@ -473,14 +567,17 @@ export interface FileRouteTypes {
     | '/roles/$roleName/edit'
     | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
+    | '/workers/$workerId/edit'
     | '/outlets/$outletId/'
     | '/permissions/$permissionName/'
     | '/product-categories/$categoryId/'
     | '/products/$productId/'
     | '/roles/$roleName/'
+    | '/shifts/$shiftId/'
     | '/tenants/$tenantId/'
     | '/transactions/$transactionId/'
     | '/users/$userId/'
+    | '/workers/$workerId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -493,29 +590,37 @@ export interface RootRouteChildren {
   ProductsNewRoute: typeof ProductsNewRoute
   RolesRoleNameRoute: typeof RolesRoleNameRouteWithChildren
   RolesNewRoute: typeof RolesNewRoute
+  ShiftsNewRoute: typeof ShiftsNewRoute
   TenantsNewRoute: typeof TenantsNewRoute
   UsersUserIdRoute: typeof UsersUserIdRouteWithChildren
   UsersNewRoute: typeof UsersNewRoute
+  WorkersNewRoute: typeof WorkersNewRoute
   OutletsIndexRoute: typeof OutletsIndexRoute
   PermissionsIndexRoute: typeof PermissionsIndexRoute
   PosIndexRoute: typeof PosIndexRoute
   ProductCategoriesIndexRoute: typeof ProductCategoriesIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   RolesIndexRoute: typeof RolesIndexRoute
+  ShiftsIndexRoute: typeof ShiftsIndexRoute
   TenantsIndexRoute: typeof TenantsIndexRoute
   TransactionsIndexRoute: typeof TransactionsIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
+  WorkersIndexRoute: typeof WorkersIndexRoute
   OutletsOutletIdCatalogRoute: typeof OutletsOutletIdCatalogRoute
   OutletsOutletIdEditRoute: typeof OutletsOutletIdEditRoute
+  OutletsOutletIdShiftTemplatesRoute: typeof OutletsOutletIdShiftTemplatesRoute
   OutletsOutletIdStocksRoute: typeof OutletsOutletIdStocksRoute
   ProductCategoriesCategoryIdEditRoute: typeof ProductCategoriesCategoryIdEditRoute
   ProductsProductIdEditRoute: typeof ProductsProductIdEditRoute
   TenantsTenantIdEditRoute: typeof TenantsTenantIdEditRoute
+  WorkersWorkerIdEditRoute: typeof WorkersWorkerIdEditRoute
   OutletsOutletIdIndexRoute: typeof OutletsOutletIdIndexRoute
   ProductCategoriesCategoryIdIndexRoute: typeof ProductCategoriesCategoryIdIndexRoute
   ProductsProductIdIndexRoute: typeof ProductsProductIdIndexRoute
+  ShiftsShiftIdIndexRoute: typeof ShiftsShiftIdIndexRoute
   TenantsTenantIdIndexRoute: typeof TenantsTenantIdIndexRoute
   TransactionsTransactionIdIndexRoute: typeof TransactionsTransactionIdIndexRoute
+  WorkersWorkerIdIndexRoute: typeof WorkersWorkerIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -532,6 +637,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workers/': {
+      id: '/workers/'
+      path: '/workers'
+      fullPath: '/workers/'
+      preLoaderRoute: typeof WorkersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users/': {
@@ -553,6 +665,13 @@ declare module '@tanstack/react-router' {
       path: '/tenants'
       fullPath: '/tenants/'
       preLoaderRoute: typeof TenantsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shifts/': {
+      id: '/shifts/'
+      path: '/shifts'
+      fullPath: '/shifts/'
+      preLoaderRoute: typeof ShiftsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roles/': {
@@ -597,6 +716,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OutletsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workers/new': {
+      id: '/workers/new'
+      path: '/workers/new'
+      fullPath: '/workers/new'
+      preLoaderRoute: typeof WorkersNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/new': {
       id: '/users/new'
       path: '/users/new'
@@ -616,6 +742,13 @@ declare module '@tanstack/react-router' {
       path: '/tenants/new'
       fullPath: '/tenants/new'
       preLoaderRoute: typeof TenantsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shifts/new': {
+      id: '/shifts/new'
+      path: '/shifts/new'
+      fullPath: '/shifts/new'
+      preLoaderRoute: typeof ShiftsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roles/new': {
@@ -667,6 +800,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OutletsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workers/$workerId/': {
+      id: '/workers/$workerId/'
+      path: '/workers/$workerId'
+      fullPath: '/workers/$workerId/'
+      preLoaderRoute: typeof WorkersWorkerIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/$userId/': {
       id: '/users/$userId/'
       path: '/'
@@ -686,6 +826,13 @@ declare module '@tanstack/react-router' {
       path: '/tenants/$tenantId'
       fullPath: '/tenants/$tenantId/'
       preLoaderRoute: typeof TenantsTenantIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shifts/$shiftId/': {
+      id: '/shifts/$shiftId/'
+      path: '/shifts/$shiftId'
+      fullPath: '/shifts/$shiftId/'
+      preLoaderRoute: typeof ShiftsShiftIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roles/$roleName/': {
@@ -721,6 +868,13 @@ declare module '@tanstack/react-router' {
       path: '/outlets/$outletId'
       fullPath: '/outlets/$outletId/'
       preLoaderRoute: typeof OutletsOutletIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workers/$workerId/edit': {
+      id: '/workers/$workerId/edit'
+      path: '/workers/$workerId/edit'
+      fullPath: '/workers/$workerId/edit'
+      preLoaderRoute: typeof WorkersWorkerIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users/$userId/edit': {
@@ -770,6 +924,13 @@ declare module '@tanstack/react-router' {
       path: '/outlets/$outletId/stocks'
       fullPath: '/outlets/$outletId/stocks'
       preLoaderRoute: typeof OutletsOutletIdStocksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/outlets/$outletId/shift-templates': {
+      id: '/outlets/$outletId/shift-templates'
+      path: '/outlets/$outletId/shift-templates'
+      fullPath: '/outlets/$outletId/shift-templates'
+      preLoaderRoute: typeof OutletsOutletIdShiftTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/outlets/$outletId/edit': {
@@ -843,29 +1004,37 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsNewRoute: ProductsNewRoute,
   RolesRoleNameRoute: RolesRoleNameRouteWithChildren,
   RolesNewRoute: RolesNewRoute,
+  ShiftsNewRoute: ShiftsNewRoute,
   TenantsNewRoute: TenantsNewRoute,
   UsersUserIdRoute: UsersUserIdRouteWithChildren,
   UsersNewRoute: UsersNewRoute,
+  WorkersNewRoute: WorkersNewRoute,
   OutletsIndexRoute: OutletsIndexRoute,
   PermissionsIndexRoute: PermissionsIndexRoute,
   PosIndexRoute: PosIndexRoute,
   ProductCategoriesIndexRoute: ProductCategoriesIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   RolesIndexRoute: RolesIndexRoute,
+  ShiftsIndexRoute: ShiftsIndexRoute,
   TenantsIndexRoute: TenantsIndexRoute,
   TransactionsIndexRoute: TransactionsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
+  WorkersIndexRoute: WorkersIndexRoute,
   OutletsOutletIdCatalogRoute: OutletsOutletIdCatalogRoute,
   OutletsOutletIdEditRoute: OutletsOutletIdEditRoute,
+  OutletsOutletIdShiftTemplatesRoute: OutletsOutletIdShiftTemplatesRoute,
   OutletsOutletIdStocksRoute: OutletsOutletIdStocksRoute,
   ProductCategoriesCategoryIdEditRoute: ProductCategoriesCategoryIdEditRoute,
   ProductsProductIdEditRoute: ProductsProductIdEditRoute,
   TenantsTenantIdEditRoute: TenantsTenantIdEditRoute,
+  WorkersWorkerIdEditRoute: WorkersWorkerIdEditRoute,
   OutletsOutletIdIndexRoute: OutletsOutletIdIndexRoute,
   ProductCategoriesCategoryIdIndexRoute: ProductCategoriesCategoryIdIndexRoute,
   ProductsProductIdIndexRoute: ProductsProductIdIndexRoute,
+  ShiftsShiftIdIndexRoute: ShiftsShiftIdIndexRoute,
   TenantsTenantIdIndexRoute: TenantsTenantIdIndexRoute,
   TransactionsTransactionIdIndexRoute: TransactionsTransactionIdIndexRoute,
+  WorkersWorkerIdIndexRoute: WorkersWorkerIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

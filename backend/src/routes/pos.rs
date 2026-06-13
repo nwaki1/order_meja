@@ -24,6 +24,7 @@ pub struct CheckoutPayment {
 #[serde(deny_unknown_fields)]
 pub struct CheckoutRequest {
     pub outlet_id: Uuid,
+    pub shift_id: Uuid,
     #[serde(default)]
     pub discount_amount: i64,
     pub items: Vec<CheckoutItem>,
@@ -73,6 +74,36 @@ async fn checkout(
     .await?
     .ok_or_else(|| AppError::NotFound("Outlet tidak ditemukan atau tidak aktif".into()))?;
     let (outlet_code, tenant_id) = outlet;
+
+    // Shift must exist, be open, and belong to the checkout outlet.
+    let shift_status = sqlx::query_as::<_, (Uuid, String)>(
+        "SELECT outlet_id, status FROM shifts WHERE id = $1",
+    )
+    .bind(body.shift_id)
+    .fetch_optional(&state.db)
+    .await?
+    .ok_or_else(|| {
+        AppError::validation(
+            "Lengkapi field yang required atau isi teks yang sesuai.",
+            "shift_id",
+            "Shift tidak ditemukan",
+        )
+    })?;
+    let (shift_outlet_id, shift_state) = shift_status;
+    if shift_outlet_id != body.outlet_id {
+        return Err(AppError::validation(
+            "Lengkapi field yang required atau isi teks yang sesuai.",
+            "shift_id",
+            "Shift bukan milik outlet checkout",
+        ));
+    }
+    if shift_state != "open" {
+        return Err(AppError::validation(
+            "Lengkapi field yang required atau isi teks yang sesuai.",
+            "shift_id",
+            "Shift harus berstatus open untuk checkout",
+        ));
+    }
 
     if body.items.is_empty() {
         return Err(AppError::BadRequest("Keranjang tidak boleh kosong".into()));
@@ -217,12 +248,13 @@ async fn checkout(
     let transaction_id = sqlx::query_scalar::<_, Uuid>(
         r#"
         INSERT INTO transactions
-            (outlet_id, invoice_number, cashier_user_id, subtotal, discount_amount, total_amount, status)
-        VALUES ($1, $2, $3, $4, $5, $6, 'completed')
+            (outlet_id, shift_id, invoice_number, cashier_user_id, subtotal, discount_amount, total_amount, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 'completed')
         RETURNING id
         "#,
     )
     .bind(body.outlet_id)
+    .bind(body.shift_id)
     .bind(&invoice_number)
     .bind(user.id)
     .bind(subtotal)

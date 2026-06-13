@@ -21,9 +21,19 @@ pub struct TransactionResponse {
     pub discount_amount: i64,
     pub total_amount: i64,
     pub status: String,
+    pub shift_id: Option<Uuid>,
+    pub shift_name: Option<String>,
+    pub shift_work_date: Option<chrono::NaiveDate>,
     pub transaction_at: chrono::DateTime<chrono::Utc>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Debug, Serialize, sqlx::FromRow)]
+pub struct ShiftWorkerName {
+    pub worker_id: Uuid,
+    pub code: String,
+    pub name: String,
 }
 
 #[derive(Debug, Serialize, sqlx::FromRow)]
@@ -53,6 +63,7 @@ pub struct TransactionDetailResponse {
     pub transaction: TransactionResponse,
     pub items: Vec<TransactionItemResponse>,
     pub payments: Vec<PaymentResponse>,
+    pub shift_workers: Vec<ShiftWorkerName>,
 }
 
 #[derive(Debug, Serialize)]
@@ -127,12 +138,16 @@ pub async fn fetch_transaction_detail(
             t.discount_amount,
             t.total_amount,
             t.status,
+            t.shift_id,
+            sh.name_snapshot AS shift_name,
+            sh.work_date AS shift_work_date,
             t.transaction_at,
             t.created_at,
             t.updated_at
         FROM transactions t
         JOIN outlets o ON o.id = t.outlet_id
         LEFT JOIN users u ON u.id = t.cashier_user_id
+        LEFT JOIN shifts sh ON sh.id = t.shift_id
         WHERE t.id = $1
         "#,
     )
@@ -140,6 +155,23 @@ pub async fn fetch_transaction_detail(
     .fetch_optional(db)
     .await?
     .ok_or_else(|| AppError::NotFound("Transaksi tidak ditemukan".into()))?;
+
+    let shift_workers = if transaction.shift_id.is_some() {
+        sqlx::query_as::<_, ShiftWorkerName>(
+            r#"
+            SELECT sw.worker_id, w.code, w.name
+            FROM shift_workers sw
+            JOIN workers w ON w.id = sw.worker_id
+            WHERE sw.shift_id = $1
+            ORDER BY w.name ASC
+            "#,
+        )
+        .bind(transaction.shift_id)
+        .fetch_all(db)
+        .await?
+    } else {
+        Vec::new()
+    };
 
     let items = sqlx::query_as::<_, TransactionItemResponse>(
         r#"
@@ -171,6 +203,7 @@ pub async fn fetch_transaction_detail(
         transaction,
         items,
         payments,
+        shift_workers,
     })
 }
 
@@ -239,12 +272,16 @@ async fn list_transactions(
             t.discount_amount,
             t.total_amount,
             t.status,
+            t.shift_id,
+            sh.name_snapshot AS shift_name,
+            sh.work_date AS shift_work_date,
             t.transaction_at,
             t.created_at,
             t.updated_at
         FROM transactions t
         JOIN outlets o ON o.id = t.outlet_id
         LEFT JOIN users u ON u.id = t.cashier_user_id
+        LEFT JOIN shifts sh ON sh.id = t.shift_id
         WHERE TRUE
         "#,
     );

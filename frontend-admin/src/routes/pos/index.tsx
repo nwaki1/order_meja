@@ -20,6 +20,8 @@ import { listOutlets } from '#/lib/outlets.ts'
 import type { Outlet } from '#/lib/outlets.ts'
 import { checkout, PAYMENT_METHODS } from '#/lib/pos.ts'
 import type { PaymentMethod } from '#/lib/pos.ts'
+import { listOutletOpenShifts } from '#/lib/shifts.ts'
+import type { Shift } from '#/lib/shifts.ts'
 import type { TransactionDetail } from '#/lib/transactions.ts'
 
 export const Route = createFileRoute('/pos/')({
@@ -61,6 +63,9 @@ function PosPage() {
   const [outlets, setOutlets] = React.useState<Outlet[]>([])
   const [outletId, setOutletId] = React.useState('')
 
+  const [shifts, setShifts] = React.useState<Shift[]>([])
+  const [shiftId, setShiftId] = React.useState('')
+
   const [catalog, setCatalog] = React.useState<CatalogItem[]>([])
   const [catalogLoading, setCatalogLoading] = React.useState(false)
   const [catalogError, setCatalogError] = React.useState<string | null>(null)
@@ -86,6 +91,24 @@ function PosPage() {
         // best-effort
       })
   }, [accessToken])
+
+  React.useEffect(() => {
+    if (!accessToken || !outletId) {
+      setShifts([])
+      return
+    }
+    let cancelled = false
+    listOutletOpenShifts(accessToken, outletId)
+      .then((res) => {
+        if (!cancelled) setShifts(res.value ?? [])
+      })
+      .catch(() => {
+        if (!cancelled) setShifts([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [accessToken, outletId])
 
   React.useEffect(() => {
     if (!accessToken || !outletId) {
@@ -222,7 +245,12 @@ function PosPage() {
   }
 
   const canCheckout =
-    !!outletId && cart.length > 0 && total > 0 && remaining === 0 && !submitting
+    !!outletId &&
+    !!shiftId &&
+    cart.length > 0 &&
+    total > 0 &&
+    remaining === 0 &&
+    !submitting
 
   async function handleCheckout() {
     if (!accessToken || !canCheckout) return
@@ -231,6 +259,7 @@ function PosPage() {
     try {
       const detail = await checkout(accessToken, {
         outlet_id: outletId,
+        shift_id: shiftId,
         discount_amount: effectiveDiscount,
         items: cart.map((c) => ({
           product_id: c.product_id,
@@ -265,27 +294,52 @@ function PosPage() {
             <AdminBreadcrumbs />
           </div>
         </div>
-        <div className="w-64">
-          <Select
-            value={outletId}
-            onValueChange={(v) => {
-              setOutletId(v)
-              resetCart()
-            }}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Pilih outlet" />
-            </SelectTrigger>
-            <SelectContent>
-              {outlets
-                .filter((o) => o.is_active)
-                .map((o) => (
-                  <SelectItem key={o.id} value={o.id}>
-                    {o.name} ({o.code})
+        <div className="flex items-center gap-3">
+          <div className="w-56">
+            <Select
+              value={outletId}
+              onValueChange={(v) => {
+                setOutletId(v)
+                setShiftId('')
+                resetCart()
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pilih outlet" />
+              </SelectTrigger>
+              <SelectContent>
+                {outlets
+                  .filter((o) => o.is_active)
+                  .map((o) => (
+                    <SelectItem key={o.id} value={o.id}>
+                      {o.name} ({o.code})
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-56">
+            <Select
+              value={shiftId}
+              onValueChange={setShiftId}
+              disabled={!outletId || shifts.length === 0}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={
+                    shifts.length === 0 ? 'Tidak ada shift open' : 'Pilih shift'
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {shifts.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name_snapshot} — {s.work_date}
                   </SelectItem>
                 ))}
-            </SelectContent>
-          </Select>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -564,6 +618,14 @@ function PosPage() {
                 </span>
               </div>
             </div>
+
+            {!shiftId && (
+              <p className="rounded-md border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm font-medium text-amber-600">
+                {shifts.length === 0
+                  ? 'Tidak ada shift open di outlet ini. Buka shift dulu sebelum checkout.'
+                  : 'Pilih shift open sebelum checkout.'}
+              </p>
+            )}
 
             {checkoutError && (
               <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">

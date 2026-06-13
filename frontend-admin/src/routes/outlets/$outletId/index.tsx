@@ -5,6 +5,7 @@ import {
   ArrowRightLeft,
   BookOpen,
   Boxes,
+  CalendarClock,
   Pencil,
   Trash2,
   UserPlus,
@@ -295,6 +296,16 @@ function OutletDetailPage() {
             >
               <Boxes />
               Stok
+            </Link>
+          </Button>
+
+          <Button size="sm" variant="outline" asChild>
+            <Link
+              to="/outlets/$outletId/shift-templates"
+              params={{ outletId: outlet.id }}
+            >
+              <CalendarClock />
+              Shift Templates
             </Link>
           </Button>
 

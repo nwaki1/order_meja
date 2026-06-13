@@ -14,6 +14,7 @@ export interface CheckoutPaymentPayload {
 
 export interface CheckoutPayload {
   outlet_id: string
+  shift_id: string
   discount_amount: number
   items: CheckoutItemPayload[]
   payments: CheckoutPaymentPayload[]

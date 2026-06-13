@@ -143,6 +143,22 @@ function TransactionDetailPage() {
             })}
           </p>
         </div>
+        <div>
+          <p className="text-xs text-[var(--sea-ink-soft)]">Shift</p>
+          <p className="text-[var(--sea-ink)]">
+            {tx.shift_name
+              ? `${tx.shift_name}${tx.shift_work_date ? ` (${tx.shift_work_date})` : ''}`
+              : '-'}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-[var(--sea-ink-soft)]">Worker Shift</p>
+          <p className="text-[var(--sea-ink)]">
+            {tx.shift_workers.length > 0
+              ? tx.shift_workers.map((w) => w.name).join(', ')
+              : '-'}
+          </p>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-lg border border-[var(--line)]">

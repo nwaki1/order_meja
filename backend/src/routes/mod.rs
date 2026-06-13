@@ -13,6 +13,9 @@ pub mod catalog;
 pub mod stocks;
 pub mod pos;
 pub mod transactions;
+pub mod workers;
+pub mod shift_templates;
+pub mod shifts;
 
 use axum::Router;
 use crate::AppState;
@@ -25,12 +28,23 @@ pub fn api_router() -> Router<AppState> {
         .nest("/roles", roles::router())
         .nest("/permissions", permissions::router())
         .nest("/tenants", tenants::router())
-        // stock routes are outlet-scoped and merged into the outlets nest
-        .nest("/outlets", outlets::router().merge(stocks::router()))
+        // outlet-scoped routes (stocks, worker assignment, shift templates,
+        // open-shifts) are merged into the outlets nest.
+        .nest(
+            "/outlets",
+            outlets::router()
+                .merge(stocks::router())
+                .merge(workers::outlet_router())
+                .merge(shift_templates::outlet_router())
+                .merge(shifts::outlet_router()),
+        )
         .nest("/product-categories", product_categories::router())
         .nest("/products", products::router())
         .nest("/product-prices", product_prices::router())
         .nest("/catalog", catalog::router())
         .nest("/pos", pos::router())
         .nest("/transactions", transactions::router())
+        .nest("/workers", workers::router())
+        .nest("/shift-templates", shift_templates::router())
+        .nest("/shifts", shifts::router())
 }

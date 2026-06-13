@@ -2,6 +2,8 @@ import * as React from 'react'
 import { Link, useRouter, useRouterState } from '@tanstack/react-router'
 import {
   Building2,
+  CalendarClock,
+  HardHat,
   KeyRound,
   LayoutDashboard,
   LogOut,
@@ -71,6 +73,20 @@ const mainNav = [
     icon: Package,
     end: false,
     permission: 'products:read',
+  },
+  {
+    title: 'Workers',
+    to: '/workers',
+    icon: HardHat,
+    end: false,
+    permission: 'workers:read',
+  },
+  {
+    title: 'Shifts',
+    to: '/shifts',
+    icon: CalendarClock,
+    end: false,
+    permission: 'shifts:read',
   },
   {
     title: 'POS',
