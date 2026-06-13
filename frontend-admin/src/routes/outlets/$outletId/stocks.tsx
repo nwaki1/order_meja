@@ -206,8 +206,8 @@ function OutletStocksPage() {
         )}
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-[var(--line)]">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-lg border border-[var(--line)]">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="border-b border-[var(--line)] bg-muted/40">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">
@@ -318,8 +318,8 @@ function OutletStocksPage() {
         <h3 className="text-sm font-semibold text-[var(--sea-ink)]">
           Riwayat Pergerakan Stok
         </h3>
-        <div className="overflow-hidden rounded-lg border border-[var(--line)]">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-lg border border-[var(--line)]">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="border-b border-[var(--line)] bg-muted/40">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">

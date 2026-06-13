@@ -263,7 +263,7 @@ function ReportsPage() {
         </p>
       )}
 
-      <div className="overflow-hidden rounded-lg border border-[var(--line)]">
+      <div className="overflow-x-auto rounded-lg border border-[var(--line)]">
         <ReportTable tab={tab} rows={rows} loading={loading} />
       </div>
     </div>
@@ -460,7 +460,7 @@ function ReportTable({
   }
 
   return (
-    <table className="w-full text-sm">
+    <table className="w-full min-w-[640px] text-sm">
       <thead className="border-b border-[var(--line)] bg-muted/40">
         {headers[tab]}
       </thead>

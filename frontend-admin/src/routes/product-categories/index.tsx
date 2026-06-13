@@ -329,8 +329,8 @@ function ProductCategoriesPage() {
         )}
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-[var(--line)]">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-lg border border-[var(--line)]">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="border-b border-[var(--line)] bg-muted/40">
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>

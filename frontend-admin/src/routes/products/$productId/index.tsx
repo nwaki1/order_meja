@@ -375,8 +375,8 @@ function ProductDetailPage() {
             </p>
           )}
 
-          <div className="overflow-hidden rounded-lg border border-[var(--line)]">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-lg border border-[var(--line)]">
+            <table className="w-full min-w-[640px] text-sm">
               <thead className="border-b border-[var(--line)] bg-muted/40">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">
