@@ -5,8 +5,10 @@ import {
   KeyRound,
   LayoutDashboard,
   LogOut,
+  Package,
   Shield,
   Store,
+  Tags,
   Users,
 } from 'lucide-react'
 
@@ -53,6 +55,20 @@ const mainNav = [
     icon: Store,
     end: false,
     permission: 'outlets:read',
+  },
+  {
+    title: 'Kategori Produk',
+    to: '/product-categories',
+    icon: Tags,
+    end: false,
+    permission: 'product_categories:read',
+  },
+  {
+    title: 'Produk',
+    to: '/products',
+    icon: Package,
+    end: false,
+    permission: 'products:read',
   },
   {
     title: 'Roles',
@@ -146,24 +162,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 state === 'collapsed' && 'justify-center px-0',
               )}
             >
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg bg-sidebar-primary text-[10px] font-bold text-sidebar-primary-foreground">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div
-                  className={cn(
-                    'min-w-0 flex-1 text-left',
-                    state === 'collapsed' && 'hidden',
-                  )}
-                >
-                  <p className="truncate text-sm font-semibold text-sidebar-foreground">
-                    {user?.name ?? 'User'}
-                  </p>
-                  <p className="truncate text-xs text-sidebar-foreground/70">
-                    {user?.email ?? 'signed in'}
-                  </p>
-                </div>
+              <Avatar className="h-8 w-8 rounded-lg">
+                <AvatarFallback className="rounded-lg bg-sidebar-primary text-[10px] font-bold text-sidebar-primary-foreground">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div
+                className={cn(
+                  'min-w-0 flex-1 text-left',
+                  state === 'collapsed' && 'hidden',
+                )}
+              >
+                <p className="truncate text-sm font-semibold text-sidebar-foreground">
+                  {user?.name ?? 'User'}
+                </p>
+                <p className="truncate text-xs text-sidebar-foreground/70">
+                  {user?.email ?? 'signed in'}
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -179,7 +195,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     'rounded-xl border-sidebar-border bg-sidebar text-sidebar-foreground shadow-none',
                     state === 'collapsed'
                       ? 'size-10'
-                      : 'h-10 w-full justify-start px-3'
+                      : 'h-10 w-full justify-start px-3',
                   )}
                 />
               </div>
@@ -187,7 +203,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 tooltip="Logout"
                 className={cn(
                   'h-10 rounded-xl',
-                  state === 'collapsed' ? 'w-10 justify-center px-0 mx-auto' : 'w-full justify-start'
+                  state === 'collapsed'
+                    ? 'w-10 justify-center px-0 mx-auto'
+                    : 'w-full justify-start',
                 )}
                 onClick={handleLogout}
               >

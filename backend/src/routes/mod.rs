@@ -7,6 +7,9 @@ pub mod permissions;
 pub mod tenants;
 pub mod outlets;
 pub mod product_categories;
+pub mod products;
+pub mod product_prices;
+pub mod catalog;
 
 use axum::Router;
 use crate::AppState;
@@ -21,4 +24,7 @@ pub fn api_router() -> Router<AppState> {
         .nest("/tenants", tenants::router())
         .nest("/outlets", outlets::router())
         .nest("/product-categories", product_categories::router())
+        .nest("/products", products::router())
+        .nest("/product-prices", product_prices::router())
+        .nest("/catalog", catalog::router())
 }

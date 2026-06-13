@@ -1,6 +1,14 @@
 import React from 'react'
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
-import { ArrowLeft, ArrowRightLeft, Pencil, Trash2, UserPlus, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRightLeft,
+  BookOpen,
+  Pencil,
+  Trash2,
+  UserPlus,
+  X,
+} from 'lucide-react'
 
 import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { useAuth } from '#/components/auth-provider.tsx'
@@ -90,26 +98,38 @@ function OutletDetailPage() {
         ? listUsers(accessToken, { $top: 100, $skip: 0, $orderby: 'name asc' })
         : Promise.resolve({ value: [] as User[] }),
       canTransferOutlet
-        ? listTenants(accessToken, { $top: 100, $skip: 0, $orderby: 'name asc' })
+        ? listTenants(accessToken, {
+            $top: 100,
+            $skip: 0,
+            $orderby: 'name asc',
+          })
         : Promise.resolve({ value: [] as Tenant[] }),
     ])
-      .then(([outletData, ownershipsData, usersData, allUsersData, tenantsData]) => {
-        if (!cancelled) {
-          setOutlet(outletData)
-          setOwnerships(ownershipsData.value ?? [])
-          setOutletUsers(usersData.value ?? [])
-          setAllUsers(
-            Array.isArray(allUsersData)
-              ? allUsersData
-              : (allUsersData.value ?? []),
-          )
-          setTenants(
-            Array.isArray(tenantsData)
-              ? tenantsData
-              : (tenantsData.value ?? []),
-          )
-        }
-      })
+      .then(
+        ([
+          outletData,
+          ownershipsData,
+          usersData,
+          allUsersData,
+          tenantsData,
+        ]) => {
+          if (!cancelled) {
+            setOutlet(outletData)
+            setOwnerships(ownershipsData.value ?? [])
+            setOutletUsers(usersData.value ?? [])
+            setAllUsers(
+              Array.isArray(allUsersData)
+                ? allUsersData
+                : (allUsersData.value ?? []),
+            )
+            setTenants(
+              Array.isArray(tenantsData)
+                ? tenantsData
+                : (tenantsData.value ?? []),
+            )
+          }
+        },
+      )
       .catch((e) => {
         if (!cancelled) {
           setLoadError(e instanceof Error ? e.message : 'Gagal memuat data')
@@ -189,12 +209,7 @@ function OutletDetailPage() {
   }
 
   const activeOutletUserIds = React.useMemo(
-    () =>
-      new Set(
-        outletUsers
-          .filter((u) => u.is_active)
-          .map((u) => u.user_id),
-      ),
+    () => new Set(outletUsers.filter((u) => u.is_active).map((u) => u.user_id)),
     [outletUsers],
   )
 
@@ -262,6 +277,16 @@ function OutletDetailPage() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
+          <Button size="sm" variant="outline" asChild>
+            <Link
+              to="/outlets/$outletId/catalog"
+              params={{ outletId: outlet.id }}
+            >
+              <BookOpen />
+              Katalog
+            </Link>
+          </Button>
+
           {canUpdateOutlet && (
             <Button size="sm" variant="outline" asChild>
               <Link
@@ -351,7 +376,9 @@ function OutletDetailPage() {
                         onClick={handleTransfer}
                         disabled={!transferTargetId || transferring}
                       >
-                        {transferring ? 'Mentransfer...' : 'Konfirmasi Transfer'}
+                        {transferring
+                          ? 'Mentransfer...'
+                          : 'Konfirmasi Transfer'}
                       </Button>
                       <Button
                         size="sm"
@@ -366,7 +393,8 @@ function OutletDetailPage() {
                       </Button>
                     </div>
                     <p className="text-xs text-destructive">
-                      Perhatian: semua assignment user outlet akan dinonaktifkan setelah transfer.
+                      Perhatian: semua assignment user outlet akan dinonaktifkan
+                      setelah transfer.
                     </p>
                   </div>
                 ) : (

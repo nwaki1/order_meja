@@ -14,6 +14,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as TenantsIndexRouteImport } from './routes/tenants/index'
 import { Route as RolesIndexRouteImport } from './routes/roles/index'
+import { Route as ProductsIndexRouteImport } from './routes/products/index'
+import { Route as ProductCategoriesIndexRouteImport } from './routes/product-categories/index'
 import { Route as PermissionsIndexRouteImport } from './routes/permissions/index'
 import { Route as OutletsIndexRouteImport } from './routes/outlets/index'
 import { Route as UsersNewRouteImport } from './routes/users/new'
@@ -21,19 +23,26 @@ import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
 import { Route as TenantsNewRouteImport } from './routes/tenants/new'
 import { Route as RolesNewRouteImport } from './routes/roles/new'
 import { Route as RolesRoleNameRouteImport } from './routes/roles/$roleName'
+import { Route as ProductsNewRouteImport } from './routes/products/new'
+import { Route as ProductCategoriesNewRouteImport } from './routes/product-categories/new'
 import { Route as PermissionsNewRouteImport } from './routes/permissions/new'
 import { Route as PermissionsPermissionNameRouteImport } from './routes/permissions/$permissionName'
 import { Route as OutletsNewRouteImport } from './routes/outlets/new'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
 import { Route as TenantsTenantIdIndexRouteImport } from './routes/tenants/$tenantId/index'
 import { Route as RolesRoleNameIndexRouteImport } from './routes/roles/$roleName/index'
+import { Route as ProductsProductIdIndexRouteImport } from './routes/products/$productId/index'
+import { Route as ProductCategoriesCategoryIdIndexRouteImport } from './routes/product-categories/$categoryId/index'
 import { Route as PermissionsPermissionNameIndexRouteImport } from './routes/permissions/$permissionName/index'
 import { Route as OutletsOutletIdIndexRouteImport } from './routes/outlets/$outletId/index'
 import { Route as UsersUserIdEditRouteImport } from './routes/users/$userId/edit'
 import { Route as TenantsTenantIdEditRouteImport } from './routes/tenants/$tenantId/edit'
 import { Route as RolesRoleNameEditRouteImport } from './routes/roles/$roleName/edit'
+import { Route as ProductsProductIdEditRouteImport } from './routes/products/$productId/edit'
+import { Route as ProductCategoriesCategoryIdEditRouteImport } from './routes/product-categories/$categoryId/edit'
 import { Route as PermissionsPermissionNameEditRouteImport } from './routes/permissions/$permissionName/edit'
 import { Route as OutletsOutletIdEditRouteImport } from './routes/outlets/$outletId/edit'
+import { Route as OutletsOutletIdCatalogRouteImport } from './routes/outlets/$outletId/catalog'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -58,6 +67,16 @@ const TenantsIndexRoute = TenantsIndexRouteImport.update({
 const RolesIndexRoute = RolesIndexRouteImport.update({
   id: '/roles/',
   path: '/roles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductCategoriesIndexRoute = ProductCategoriesIndexRouteImport.update({
+  id: '/product-categories/',
+  path: '/product-categories/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PermissionsIndexRoute = PermissionsIndexRouteImport.update({
@@ -95,6 +114,16 @@ const RolesRoleNameRoute = RolesRoleNameRouteImport.update({
   path: '/roles/$roleName',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductsNewRoute = ProductsNewRouteImport.update({
+  id: '/products/new',
+  path: '/products/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductCategoriesNewRoute = ProductCategoriesNewRouteImport.update({
+  id: '/product-categories/new',
+  path: '/product-categories/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PermissionsNewRoute = PermissionsNewRouteImport.update({
   id: '/permissions/new',
   path: '/permissions/new',
@@ -126,6 +155,17 @@ const RolesRoleNameIndexRoute = RolesRoleNameIndexRouteImport.update({
   path: '/',
   getParentRoute: () => RolesRoleNameRoute,
 } as any)
+const ProductsProductIdIndexRoute = ProductsProductIdIndexRouteImport.update({
+  id: '/products/$productId/',
+  path: '/products/$productId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductCategoriesCategoryIdIndexRoute =
+  ProductCategoriesCategoryIdIndexRouteImport.update({
+    id: '/product-categories/$categoryId/',
+    path: '/product-categories/$categoryId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PermissionsPermissionNameIndexRoute =
   PermissionsPermissionNameIndexRouteImport.update({
     id: '/',
@@ -152,6 +192,17 @@ const RolesRoleNameEditRoute = RolesRoleNameEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => RolesRoleNameRoute,
 } as any)
+const ProductsProductIdEditRoute = ProductsProductIdEditRouteImport.update({
+  id: '/products/$productId/edit',
+  path: '/products/$productId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductCategoriesCategoryIdEditRoute =
+  ProductCategoriesCategoryIdEditRouteImport.update({
+    id: '/product-categories/$categoryId/edit',
+    path: '/product-categories/$categoryId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PermissionsPermissionNameEditRoute =
   PermissionsPermissionNameEditRouteImport.update({
     id: '/edit',
@@ -163,6 +214,11 @@ const OutletsOutletIdEditRoute = OutletsOutletIdEditRouteImport.update({
   path: '/outlets/$outletId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OutletsOutletIdCatalogRoute = OutletsOutletIdCatalogRouteImport.update({
+  id: '/outlets/$outletId/catalog',
+  path: '/outlets/$outletId/catalog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -170,6 +226,8 @@ export interface FileRoutesByFullPath {
   '/outlets/new': typeof OutletsNewRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameRouteWithChildren
   '/permissions/new': typeof PermissionsNewRoute
+  '/product-categories/new': typeof ProductCategoriesNewRoute
+  '/products/new': typeof ProductsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
   '/roles/new': typeof RolesNewRoute
   '/tenants/new': typeof TenantsNewRoute
@@ -177,16 +235,23 @@ export interface FileRoutesByFullPath {
   '/users/new': typeof UsersNewRoute
   '/outlets/': typeof OutletsIndexRoute
   '/permissions/': typeof PermissionsIndexRoute
+  '/product-categories/': typeof ProductCategoriesIndexRoute
+  '/products/': typeof ProductsIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/outlets/$outletId/catalog': typeof OutletsOutletIdCatalogRoute
   '/outlets/$outletId/edit': typeof OutletsOutletIdEditRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
+  '/product-categories/$categoryId/edit': typeof ProductCategoriesCategoryIdEditRoute
+  '/products/$productId/edit': typeof ProductsProductIdEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
   '/outlets/$outletId/': typeof OutletsOutletIdIndexRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
+  '/product-categories/$categoryId/': typeof ProductCategoriesCategoryIdIndexRoute
+  '/products/$productId/': typeof ProductsProductIdIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
   '/tenants/$tenantId/': typeof TenantsTenantIdIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
@@ -196,21 +261,30 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/outlets/new': typeof OutletsNewRoute
   '/permissions/new': typeof PermissionsNewRoute
+  '/product-categories/new': typeof ProductCategoriesNewRoute
+  '/products/new': typeof ProductsNewRoute
   '/roles/new': typeof RolesNewRoute
   '/tenants/new': typeof TenantsNewRoute
   '/users/new': typeof UsersNewRoute
   '/outlets': typeof OutletsIndexRoute
   '/permissions': typeof PermissionsIndexRoute
+  '/product-categories': typeof ProductCategoriesIndexRoute
+  '/products': typeof ProductsIndexRoute
   '/roles': typeof RolesIndexRoute
   '/tenants': typeof TenantsIndexRoute
   '/users': typeof UsersIndexRoute
+  '/outlets/$outletId/catalog': typeof OutletsOutletIdCatalogRoute
   '/outlets/$outletId/edit': typeof OutletsOutletIdEditRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
+  '/product-categories/$categoryId/edit': typeof ProductCategoriesCategoryIdEditRoute
+  '/products/$productId/edit': typeof ProductsProductIdEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
   '/outlets/$outletId': typeof OutletsOutletIdIndexRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameIndexRoute
+  '/product-categories/$categoryId': typeof ProductCategoriesCategoryIdIndexRoute
+  '/products/$productId': typeof ProductsProductIdIndexRoute
   '/roles/$roleName': typeof RolesRoleNameIndexRoute
   '/tenants/$tenantId': typeof TenantsTenantIdIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
@@ -222,6 +296,8 @@ export interface FileRoutesById {
   '/outlets/new': typeof OutletsNewRoute
   '/permissions/$permissionName': typeof PermissionsPermissionNameRouteWithChildren
   '/permissions/new': typeof PermissionsNewRoute
+  '/product-categories/new': typeof ProductCategoriesNewRoute
+  '/products/new': typeof ProductsNewRoute
   '/roles/$roleName': typeof RolesRoleNameRouteWithChildren
   '/roles/new': typeof RolesNewRoute
   '/tenants/new': typeof TenantsNewRoute
@@ -229,16 +305,23 @@ export interface FileRoutesById {
   '/users/new': typeof UsersNewRoute
   '/outlets/': typeof OutletsIndexRoute
   '/permissions/': typeof PermissionsIndexRoute
+  '/product-categories/': typeof ProductCategoriesIndexRoute
+  '/products/': typeof ProductsIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/tenants/': typeof TenantsIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/outlets/$outletId/catalog': typeof OutletsOutletIdCatalogRoute
   '/outlets/$outletId/edit': typeof OutletsOutletIdEditRoute
   '/permissions/$permissionName/edit': typeof PermissionsPermissionNameEditRoute
+  '/product-categories/$categoryId/edit': typeof ProductCategoriesCategoryIdEditRoute
+  '/products/$productId/edit': typeof ProductsProductIdEditRoute
   '/roles/$roleName/edit': typeof RolesRoleNameEditRoute
   '/tenants/$tenantId/edit': typeof TenantsTenantIdEditRoute
   '/users/$userId/edit': typeof UsersUserIdEditRoute
   '/outlets/$outletId/': typeof OutletsOutletIdIndexRoute
   '/permissions/$permissionName/': typeof PermissionsPermissionNameIndexRoute
+  '/product-categories/$categoryId/': typeof ProductCategoriesCategoryIdIndexRoute
+  '/products/$productId/': typeof ProductsProductIdIndexRoute
   '/roles/$roleName/': typeof RolesRoleNameIndexRoute
   '/tenants/$tenantId/': typeof TenantsTenantIdIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
@@ -251,6 +334,8 @@ export interface FileRouteTypes {
     | '/outlets/new'
     | '/permissions/$permissionName'
     | '/permissions/new'
+    | '/product-categories/new'
+    | '/products/new'
     | '/roles/$roleName'
     | '/roles/new'
     | '/tenants/new'
@@ -258,16 +343,23 @@ export interface FileRouteTypes {
     | '/users/new'
     | '/outlets/'
     | '/permissions/'
+    | '/product-categories/'
+    | '/products/'
     | '/roles/'
     | '/tenants/'
     | '/users/'
+    | '/outlets/$outletId/catalog'
     | '/outlets/$outletId/edit'
     | '/permissions/$permissionName/edit'
+    | '/product-categories/$categoryId/edit'
+    | '/products/$productId/edit'
     | '/roles/$roleName/edit'
     | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
     | '/outlets/$outletId/'
     | '/permissions/$permissionName/'
+    | '/product-categories/$categoryId/'
+    | '/products/$productId/'
     | '/roles/$roleName/'
     | '/tenants/$tenantId/'
     | '/users/$userId/'
@@ -277,21 +369,30 @@ export interface FileRouteTypes {
     | '/login'
     | '/outlets/new'
     | '/permissions/new'
+    | '/product-categories/new'
+    | '/products/new'
     | '/roles/new'
     | '/tenants/new'
     | '/users/new'
     | '/outlets'
     | '/permissions'
+    | '/product-categories'
+    | '/products'
     | '/roles'
     | '/tenants'
     | '/users'
+    | '/outlets/$outletId/catalog'
     | '/outlets/$outletId/edit'
     | '/permissions/$permissionName/edit'
+    | '/product-categories/$categoryId/edit'
+    | '/products/$productId/edit'
     | '/roles/$roleName/edit'
     | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
     | '/outlets/$outletId'
     | '/permissions/$permissionName'
+    | '/product-categories/$categoryId'
+    | '/products/$productId'
     | '/roles/$roleName'
     | '/tenants/$tenantId'
     | '/users/$userId'
@@ -302,6 +403,8 @@ export interface FileRouteTypes {
     | '/outlets/new'
     | '/permissions/$permissionName'
     | '/permissions/new'
+    | '/product-categories/new'
+    | '/products/new'
     | '/roles/$roleName'
     | '/roles/new'
     | '/tenants/new'
@@ -309,16 +412,23 @@ export interface FileRouteTypes {
     | '/users/new'
     | '/outlets/'
     | '/permissions/'
+    | '/product-categories/'
+    | '/products/'
     | '/roles/'
     | '/tenants/'
     | '/users/'
+    | '/outlets/$outletId/catalog'
     | '/outlets/$outletId/edit'
     | '/permissions/$permissionName/edit'
+    | '/product-categories/$categoryId/edit'
+    | '/products/$productId/edit'
     | '/roles/$roleName/edit'
     | '/tenants/$tenantId/edit'
     | '/users/$userId/edit'
     | '/outlets/$outletId/'
     | '/permissions/$permissionName/'
+    | '/product-categories/$categoryId/'
+    | '/products/$productId/'
     | '/roles/$roleName/'
     | '/tenants/$tenantId/'
     | '/users/$userId/'
@@ -330,6 +440,8 @@ export interface RootRouteChildren {
   OutletsNewRoute: typeof OutletsNewRoute
   PermissionsPermissionNameRoute: typeof PermissionsPermissionNameRouteWithChildren
   PermissionsNewRoute: typeof PermissionsNewRoute
+  ProductCategoriesNewRoute: typeof ProductCategoriesNewRoute
+  ProductsNewRoute: typeof ProductsNewRoute
   RolesRoleNameRoute: typeof RolesRoleNameRouteWithChildren
   RolesNewRoute: typeof RolesNewRoute
   TenantsNewRoute: typeof TenantsNewRoute
@@ -337,12 +449,19 @@ export interface RootRouteChildren {
   UsersNewRoute: typeof UsersNewRoute
   OutletsIndexRoute: typeof OutletsIndexRoute
   PermissionsIndexRoute: typeof PermissionsIndexRoute
+  ProductCategoriesIndexRoute: typeof ProductCategoriesIndexRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
   RolesIndexRoute: typeof RolesIndexRoute
   TenantsIndexRoute: typeof TenantsIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
+  OutletsOutletIdCatalogRoute: typeof OutletsOutletIdCatalogRoute
   OutletsOutletIdEditRoute: typeof OutletsOutletIdEditRoute
+  ProductCategoriesCategoryIdEditRoute: typeof ProductCategoriesCategoryIdEditRoute
+  ProductsProductIdEditRoute: typeof ProductsProductIdEditRoute
   TenantsTenantIdEditRoute: typeof TenantsTenantIdEditRoute
   OutletsOutletIdIndexRoute: typeof OutletsOutletIdIndexRoute
+  ProductCategoriesCategoryIdIndexRoute: typeof ProductCategoriesCategoryIdIndexRoute
+  ProductsProductIdIndexRoute: typeof ProductsProductIdIndexRoute
   TenantsTenantIdIndexRoute: typeof TenantsTenantIdIndexRoute
 }
 
@@ -381,6 +500,20 @@ declare module '@tanstack/react-router' {
       path: '/roles'
       fullPath: '/roles/'
       preLoaderRoute: typeof RolesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/': {
+      id: '/products/'
+      path: '/products'
+      fullPath: '/products/'
+      preLoaderRoute: typeof ProductsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product-categories/': {
+      id: '/product-categories/'
+      path: '/product-categories'
+      fullPath: '/product-categories/'
+      preLoaderRoute: typeof ProductCategoriesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/permissions/': {
@@ -432,6 +565,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RolesRoleNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/products/new': {
+      id: '/products/new'
+      path: '/products/new'
+      fullPath: '/products/new'
+      preLoaderRoute: typeof ProductsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product-categories/new': {
+      id: '/product-categories/new'
+      path: '/product-categories/new'
+      fullPath: '/product-categories/new'
+      preLoaderRoute: typeof ProductCategoriesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/permissions/new': {
       id: '/permissions/new'
       path: '/permissions/new'
@@ -474,6 +621,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RolesRoleNameIndexRouteImport
       parentRoute: typeof RolesRoleNameRoute
     }
+    '/products/$productId/': {
+      id: '/products/$productId/'
+      path: '/products/$productId'
+      fullPath: '/products/$productId/'
+      preLoaderRoute: typeof ProductsProductIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product-categories/$categoryId/': {
+      id: '/product-categories/$categoryId/'
+      path: '/product-categories/$categoryId'
+      fullPath: '/product-categories/$categoryId/'
+      preLoaderRoute: typeof ProductCategoriesCategoryIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/permissions/$permissionName/': {
       id: '/permissions/$permissionName/'
       path: '/'
@@ -509,6 +670,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RolesRoleNameEditRouteImport
       parentRoute: typeof RolesRoleNameRoute
     }
+    '/products/$productId/edit': {
+      id: '/products/$productId/edit'
+      path: '/products/$productId/edit'
+      fullPath: '/products/$productId/edit'
+      preLoaderRoute: typeof ProductsProductIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product-categories/$categoryId/edit': {
+      id: '/product-categories/$categoryId/edit'
+      path: '/product-categories/$categoryId/edit'
+      fullPath: '/product-categories/$categoryId/edit'
+      preLoaderRoute: typeof ProductCategoriesCategoryIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/permissions/$permissionName/edit': {
       id: '/permissions/$permissionName/edit'
       path: '/edit'
@@ -521,6 +696,13 @@ declare module '@tanstack/react-router' {
       path: '/outlets/$outletId/edit'
       fullPath: '/outlets/$outletId/edit'
       preLoaderRoute: typeof OutletsOutletIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/outlets/$outletId/catalog': {
+      id: '/outlets/$outletId/catalog'
+      path: '/outlets/$outletId/catalog'
+      fullPath: '/outlets/$outletId/catalog'
+      preLoaderRoute: typeof OutletsOutletIdCatalogRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -576,6 +758,8 @@ const rootRouteChildren: RootRouteChildren = {
   OutletsNewRoute: OutletsNewRoute,
   PermissionsPermissionNameRoute: PermissionsPermissionNameRouteWithChildren,
   PermissionsNewRoute: PermissionsNewRoute,
+  ProductCategoriesNewRoute: ProductCategoriesNewRoute,
+  ProductsNewRoute: ProductsNewRoute,
   RolesRoleNameRoute: RolesRoleNameRouteWithChildren,
   RolesNewRoute: RolesNewRoute,
   TenantsNewRoute: TenantsNewRoute,
@@ -583,12 +767,19 @@ const rootRouteChildren: RootRouteChildren = {
   UsersNewRoute: UsersNewRoute,
   OutletsIndexRoute: OutletsIndexRoute,
   PermissionsIndexRoute: PermissionsIndexRoute,
+  ProductCategoriesIndexRoute: ProductCategoriesIndexRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
   RolesIndexRoute: RolesIndexRoute,
   TenantsIndexRoute: TenantsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
+  OutletsOutletIdCatalogRoute: OutletsOutletIdCatalogRoute,
   OutletsOutletIdEditRoute: OutletsOutletIdEditRoute,
+  ProductCategoriesCategoryIdEditRoute: ProductCategoriesCategoryIdEditRoute,
+  ProductsProductIdEditRoute: ProductsProductIdEditRoute,
   TenantsTenantIdEditRoute: TenantsTenantIdEditRoute,
   OutletsOutletIdIndexRoute: OutletsOutletIdIndexRoute,
+  ProductCategoriesCategoryIdIndexRoute: ProductCategoriesCategoryIdIndexRoute,
+  ProductsProductIdIndexRoute: ProductsProductIdIndexRoute,
   TenantsTenantIdIndexRoute: TenantsTenantIdIndexRoute,
 }
 export const routeTree = rootRouteImport
