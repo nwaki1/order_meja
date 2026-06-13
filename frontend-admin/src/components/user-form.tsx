@@ -1,4 +1,5 @@
 import React from 'react'
+import { useAuth } from '#/components/auth-provider.tsx'
 import { Button } from '#/components/ui/button.tsx'
 import { Input } from '#/components/ui/input.tsx'
 import { Label } from '#/components/ui/label.tsx'
@@ -10,6 +11,7 @@ import {
   SelectValue,
 } from '#/components/ui/select.tsx'
 import type { ApiFieldErrors } from '#/lib/api.ts'
+import { listRoles } from '#/lib/roles.ts'
 import type { User } from '#/lib/users.ts'
 
 export type UserFormMode = 'create' | 'edit' | 'view'
@@ -42,6 +44,8 @@ export function UserForm({
   onSubmit,
   onCancel,
 }: UserFormProps) {
+  const { session } = useAuth()
+  const accessToken = session?.accessToken
   const formRef = React.useRef<HTMLFormElement | null>(null)
   const [form, setForm] = React.useState<UserFormData>({
     name: initialData?.name ?? '',
@@ -51,6 +55,25 @@ export function UserForm({
   })
   const [submitAttempted, setSubmitAttempted] = React.useState(false)
   const [serverFieldErrors, setServerFieldErrors] = React.useState<UserFormFieldErrors>({})
+  const [roleNames, setRoleNames] = React.useState<string[]>([])
+
+  React.useEffect(() => {
+    if (!accessToken || mode === 'view') return
+    let cancelled = false
+    listRoles(accessToken, { $top: 100, $skip: 0, $orderby: 'name asc' })
+      .then((res) => {
+        if (!cancelled) {
+          const rows = Array.isArray(res) ? res : (res.value ?? [])
+          setRoleNames(rows.map((r) => r.name))
+        }
+      })
+      .catch(() => {
+        // fall back to whatever the current value is
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [accessToken, mode])
 
   React.useEffect(() => {
     if (initialData) {
@@ -199,11 +222,17 @@ export function UserForm({
             disabled={submitting}
           >
             <SelectTrigger id="uf-role" className="w-full">
-              <SelectValue />
+              <SelectValue placeholder="Pilih role" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="user">User</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
+              {(roleNames.length > 0
+                ? roleNames
+                : [form.role].filter(Boolean)
+              ).map((roleName) => (
+                <SelectItem key={roleName} value={roleName}>
+                  {roleName}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         )}

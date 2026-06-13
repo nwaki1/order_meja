@@ -201,6 +201,24 @@ async fn list_users(
     Ok(Json(ODataListResponse { odata_count, value: users }))
 }
 
+// Role must exist in the roles table (managed via /roles), not a hardcoded set.
+async fn ensure_role_exists(db: &sqlx::PgPool, role: &str) -> Result<()> {
+    let exists =
+        sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM roles WHERE name = $1)")
+            .bind(role)
+            .fetch_one(db)
+            .await?;
+    if exists {
+        Ok(())
+    } else {
+        Err(AppError::validation(
+            "Lengkapi field yang required atau isi teks yang sesuai.",
+            "role",
+            "Role tidak ditemukan",
+        ))
+    }
+}
+
 async fn create_user(
     user: auth::AuthUser,
     State(state): State<AppState>,
@@ -229,13 +247,7 @@ async fn create_user(
             "Password minimal 8 karakter",
         ));
     }
-    if !["admin", "user"].contains(&body.role.as_str()) {
-        return Err(AppError::validation(
-            "Lengkapi field yang required atau isi teks yang sesuai.",
-            "role",
-            "Role harus admin atau user",
-        ));
-    }
+    ensure_role_exists(&state.db, &body.role).await?;
 
     let password_hash = hash_password(&body.password)?;
 
@@ -315,13 +327,7 @@ async fn update_user(
         }
     }
     if let Some(ref role) = body.role {
-        if !["admin", "user"].contains(&role.as_str()) {
-            return Err(AppError::validation(
-                "Lengkapi field yang required atau isi teks yang sesuai.",
-                "role",
-                "Role harus admin atau user",
-            ));
-        }
+        ensure_role_exists(&state.db, role).await?;
     }
     if let Some(ref password) = body.password {
         if !password.is_empty() && password.len() < 8 {
