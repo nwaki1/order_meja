@@ -1,6 +1,6 @@
 import React from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Check, Minus, Plus, Search, Trash2, X } from 'lucide-react'
+import { Check, Minus, Plus, Search, ShoppingCart, Trash2, X } from 'lucide-react'
 
 import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { useAuth } from '#/components/auth-provider.tsx'
@@ -14,6 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select.tsx'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '#/components/ui/sheet.tsx'
+import { cn } from '#/lib/utils.ts'
 import { getOutletCatalog } from '#/lib/catalog.ts'
 import type { CatalogItem } from '#/lib/catalog.ts'
 import { listOutlets } from '#/lib/outlets.ts'
@@ -74,6 +82,7 @@ function PosPage() {
   const [categoryFilter, setCategoryFilter] = React.useState('all')
 
   const [cart, setCart] = React.useState<CartLine[]>([])
+  const [cartOpen, setCartOpen] = React.useState(false)
   const [discount, setDiscount] = React.useState('')
   const [payments, setPayments] = React.useState<PaymentRow[]>([
     { payment_method: 'cash', amount: '' },
@@ -208,6 +217,7 @@ function PosPage() {
   }
 
   const subtotal = cart.reduce((sum, c) => sum + c.price * c.quantity, 0)
+  const cartCount = cart.reduce((sum, c) => sum + c.quantity, 0)
   const discountValue = Math.max(0, Math.round(Number(discount) || 0))
   const effectiveDiscount = Math.min(discountValue, subtotal)
   const total = subtotal - effectiveDiscount
@@ -276,6 +286,7 @@ function PosPage() {
       setCart([])
       setDiscount('')
       setPayments([{ payment_method: 'cash', amount: '' }])
+      setCartOpen(false)
     } catch (e) {
       setCheckoutError(e instanceof Error ? e.message : 'Checkout gagal')
     } finally {
@@ -283,8 +294,199 @@ function PosPage() {
     }
   }
 
+  function renderCart() {
+    return (
+      <>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-[var(--sea-ink)]">
+            Keranjang {cartCount > 0 ? `(${cartCount})` : ''}
+          </h3>
+          {cart.length > 0 && (
+            <Button size="xs" variant="ghost" onClick={resetCart}>
+              <Trash2 />
+              Reset
+            </Button>
+          )}
+        </div>
+
+        {cart.length === 0 ? (
+          <p className="py-6 text-center text-sm text-[var(--sea-ink-soft)]">
+            Keranjang kosong.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {cart.map((line) => (
+              <div
+                key={line.product_id}
+                className="flex items-center gap-2 rounded-md border border-[var(--line)] p-2"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-[var(--sea-ink)]">
+                    {line.name}
+                  </p>
+                  <p className="text-xs text-[var(--sea-ink-soft)]">
+                    {formatIDR(line.price)} × {line.quantity} ={' '}
+                    {formatIDR(line.price * line.quantity)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    onClick={() => changeQty(line.product_id, -1)}
+                  >
+                    <Minus />
+                  </Button>
+                  <span className="w-6 text-center text-sm">
+                    {line.quantity}
+                  </span>
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    onClick={() => changeQty(line.product_id, 1)}
+                  >
+                    <Plus />
+                  </Button>
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => removeLine(line.product_id)}
+                  >
+                    <X />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="space-y-2 border-t border-[var(--line)] pt-3 text-sm">
+          <div className="flex justify-between text-[var(--sea-ink-soft)]">
+            <span>Subtotal</span>
+            <span>{formatIDR(subtotal)}</span>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <Label className="text-[var(--sea-ink-soft)]">Diskon</Label>
+            <Input
+              type="number"
+              min={0}
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              className="h-8 w-32 text-right"
+              placeholder="0"
+            />
+          </div>
+          <div className="flex justify-between text-base font-semibold text-[var(--sea-ink)]">
+            <span>Total</span>
+            <span>{formatIDR(total)}</span>
+          </div>
+        </div>
+
+        <div className="space-y-2 border-t border-[var(--line)] pt-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-[var(--sea-ink)]">
+              Pembayaran
+            </span>
+            <Button size="xs" variant="outline" onClick={addPaymentRow}>
+              <Plus />
+              Split
+            </Button>
+          </div>
+          {payments.map((p, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <Select
+                value={p.payment_method}
+                onValueChange={(v) =>
+                  updatePayment(i, { payment_method: v as PaymentMethod })
+                }
+              >
+                <SelectTrigger size="sm" className="w-28">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.map((m) => (
+                    <SelectItem key={m} value={m}>
+                      {PAYMENT_LABELS[m]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                type="number"
+                min={0}
+                value={p.amount}
+                onChange={(e) => updatePayment(i, { amount: e.target.value })}
+                className="h-8 flex-1 text-right"
+                placeholder="0"
+              />
+              <Button
+                size="xs"
+                variant="ghost"
+                onClick={() => fillRemaining(i)}
+                title="Isi sisa"
+              >
+                Sisa
+              </Button>
+              {payments.length > 1 && (
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => removePaymentRow(i)}
+                >
+                  <X />
+                </Button>
+              )}
+            </div>
+          ))}
+          <div className="flex justify-between text-sm">
+            <span className="text-[var(--sea-ink-soft)]">Dibayar</span>
+            <span>{formatIDR(paymentsTotal)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-[var(--sea-ink-soft)]">
+              {remaining >= 0 ? 'Sisa' : 'Kelebihan'}
+            </span>
+            <span
+              className={
+                remaining === 0
+                  ? 'text-primary'
+                  : 'font-medium text-destructive'
+              }
+            >
+              {formatIDR(Math.abs(remaining))}
+            </span>
+          </div>
+        </div>
+
+        {!shiftId && (
+          <p className="rounded-md border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm font-medium text-amber-600">
+            {shifts.length === 0
+              ? 'Tidak ada shift open di outlet ini. Buka shift dulu sebelum checkout.'
+              : 'Pilih shift open sebelum checkout.'}
+          </p>
+        )}
+
+        {checkoutError && (
+          <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
+            {checkoutError}
+          </p>
+        )}
+
+        <Button
+          className="w-full"
+          onClick={handleCheckout}
+          disabled={!canCheckout}
+        >
+          {submitting ? 'Memproses...' : `Bayar ${formatIDR(total)}`}
+        </Button>
+      </>
+    )
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 lg:pb-0">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-[var(--sea-ink)]">
@@ -377,8 +579,8 @@ function PosPage() {
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           {/* Catalog */}
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="relative max-w-xs flex-1">
+            <div className="space-y-3">
+              <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-[var(--sea-ink-soft)]" />
                 <Input
                   placeholder="Cari produk / SKU..."
@@ -387,19 +589,26 @@ function PosPage() {
                   className="pl-8"
                 />
               </div>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger size="sm" className="w-44">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua kategori</SelectItem>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
+              <div className="flex flex-wrap gap-2">
+                {[{ id: 'all', name: 'Semua' }, ...categories].map((c) => {
+                  const active = categoryFilter === c.id
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setCategoryFilter(c.id)}
+                      className={cn(
+                        'h-8 rounded-full border px-3 text-xs font-medium transition-colors',
+                        active
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-[var(--line)] text-[var(--sea-ink)] hover:bg-muted/40',
+                      )}
+                    >
                       {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             {catalogError ? (
@@ -419,35 +628,79 @@ function PosPage() {
                 ) : (
                   filteredCatalog.map((item) => {
                     const sellable = item.price != null
+                    const cartLine = cart.find(
+                      (c) => c.product_id === item.product_id,
+                    )
+                    const inCart = Boolean(cartLine)
                     return (
-                      <button
+                      <div
                         key={item.product_id}
-                        type="button"
-                        onClick={() => addToCart(item)}
-                        disabled={!sellable}
-                        className="flex flex-col items-start gap-1 rounded-lg border border-[var(--line)] bg-background p-3 text-left transition-colors hover:border-primary/40 hover:bg-muted/40 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {item.image_url ? (
-                          <img
-                            src={item.image_url}
-                            alt=""
-                            className="mb-1 h-20 w-full rounded-md border border-[var(--line)] object-cover"
-                          />
-                        ) : (
-                          <div className="mb-1 h-20 w-full rounded-md border border-dashed border-[var(--line)]" />
+                        className={cn(
+                          'flex flex-col rounded-lg border bg-background p-3 transition-colors',
+                          !sellable
+                            ? 'border-[var(--line)] opacity-60'
+                            : inCart
+                              ? 'border-2 border-primary bg-primary/5'
+                              : 'border-[var(--line)] hover:border-primary/40',
                         )}
-                        <span className="text-xs text-[var(--sea-ink-soft)]">
-                          {item.sku}
-                        </span>
-                        <span className="font-medium text-[var(--sea-ink)]">
-                          {item.name}
-                        </span>
-                        <span className="text-sm font-semibold text-primary">
-                          {sellable
-                            ? formatIDR(item.price as number)
-                            : 'Belum ada harga'}
-                        </span>
-                      </button>
+                      >
+                        <button
+                          type="button"
+                          onClick={() => addToCart(item)}
+                          disabled={!sellable}
+                          className="flex flex-1 flex-col items-start gap-1 text-left disabled:cursor-not-allowed"
+                        >
+                          <div className="relative mb-1 w-full">
+                            {item.image_url ? (
+                              <img
+                                src={item.image_url}
+                                alt=""
+                                className="h-20 w-full rounded-md border border-[var(--line)] object-cover"
+                              />
+                            ) : (
+                              <div className="h-20 w-full rounded-md border border-dashed border-[var(--line)]" />
+                            )}
+                            {cartLine ? (
+                              <span className="absolute right-1.5 top-1.5 rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground shadow-sm">
+                                ×{cartLine.quantity}
+                              </span>
+                            ) : null}
+                          </div>
+                          <span className="text-xs text-[var(--sea-ink-soft)]">
+                            {item.sku}
+                          </span>
+                          <span className="font-medium text-[var(--sea-ink)]">
+                            {item.name}
+                          </span>
+                          <span className="text-sm font-semibold text-primary">
+                            {sellable
+                              ? formatIDR(item.price as number)
+                              : 'Belum ada harga'}
+                          </span>
+                        </button>
+
+                        <div className="mt-3 flex items-center justify-between">
+                          <Button
+                            size="icon-sm"
+                            variant="outline"
+                            disabled={!cartLine}
+                            onClick={() => changeQty(item.product_id, -1)}
+                          >
+                            <Minus />
+                          </Button>
+                          <span className="text-sm font-semibold text-[var(--sea-ink)]">
+                            {cartLine?.quantity ?? 0}
+                          </span>
+                          <Button
+                            size="icon-sm"
+                            variant="outline"
+                            disabled={!sellable}
+                            onClick={() => addToCart(item)}
+                          >
+                            <Plus />
+                          </Button>
+                        </div>
+                      </div>
                     )
                   })
                 )}
@@ -455,203 +708,46 @@ function PosPage() {
             )}
           </div>
 
-          {/* Cart */}
-          <div className="space-y-4 rounded-lg border border-[var(--line)] bg-background p-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-[var(--sea-ink)]">
-                Keranjang
-              </h3>
-              {cart.length > 0 && (
-                <Button size="xs" variant="ghost" onClick={resetCart}>
-                  <Trash2 />
-                  Reset
-                </Button>
-              )}
-            </div>
-
-            {cart.length === 0 ? (
-              <p className="py-6 text-center text-sm text-[var(--sea-ink-soft)]">
-                Keranjang kosong.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {cart.map((line) => (
-                  <div
-                    key={line.product_id}
-                    className="flex items-center gap-2 rounded-md border border-[var(--line)] p-2"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-[var(--sea-ink)]">
-                        {line.name}
-                      </p>
-                      <p className="text-xs text-[var(--sea-ink-soft)]">
-                        {formatIDR(line.price)} × {line.quantity} ={' '}
-                        {formatIDR(line.price * line.quantity)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        size="icon-sm"
-                        variant="outline"
-                        onClick={() => changeQty(line.product_id, -1)}
-                      >
-                        <Minus />
-                      </Button>
-                      <span className="w-6 text-center text-sm">
-                        {line.quantity}
-                      </span>
-                      <Button
-                        size="icon-sm"
-                        variant="outline"
-                        onClick={() => changeQty(line.product_id, 1)}
-                      >
-                        <Plus />
-                      </Button>
-                      <Button
-                        size="icon-sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => removeLine(line.product_id)}
-                      >
-                        <X />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="space-y-2 border-t border-[var(--line)] pt-3 text-sm">
-              <div className="flex justify-between text-[var(--sea-ink-soft)]">
-                <span>Subtotal</span>
-                <span>{formatIDR(subtotal)}</span>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <Label
-                  htmlFor="pos-discount"
-                  className="text-[var(--sea-ink-soft)]"
-                >
-                  Diskon
-                </Label>
-                <Input
-                  id="pos-discount"
-                  type="number"
-                  min={0}
-                  value={discount}
-                  onChange={(e) => setDiscount(e.target.value)}
-                  className="h-8 w-32 text-right"
-                  placeholder="0"
-                />
-              </div>
-              <div className="flex justify-between text-base font-semibold text-[var(--sea-ink)]">
-                <span>Total</span>
-                <span>{formatIDR(total)}</span>
-              </div>
-            </div>
-
-            <div className="space-y-2 border-t border-[var(--line)] pt-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-[var(--sea-ink)]">
-                  Pembayaran
-                </span>
-                <Button size="xs" variant="outline" onClick={addPaymentRow}>
-                  <Plus />
-                  Split
-                </Button>
-              </div>
-              {payments.map((p, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Select
-                    value={p.payment_method}
-                    onValueChange={(v) =>
-                      updatePayment(i, { payment_method: v as PaymentMethod })
-                    }
-                  >
-                    <SelectTrigger size="sm" className="w-28">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PAYMENT_METHODS.map((m) => (
-                        <SelectItem key={m} value={m}>
-                          {PAYMENT_LABELS[m]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={p.amount}
-                    onChange={(e) =>
-                      updatePayment(i, { amount: e.target.value })
-                    }
-                    className="h-8 flex-1 text-right"
-                    placeholder="0"
-                  />
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    onClick={() => fillRemaining(i)}
-                    title="Isi sisa"
-                  >
-                    Sisa
-                  </Button>
-                  {payments.length > 1 && (
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => removePaymentRow(i)}
-                    >
-                      <X />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--sea-ink-soft)]">Dibayar</span>
-                <span>{formatIDR(paymentsTotal)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--sea-ink-soft)]">
-                  {remaining >= 0 ? 'Sisa' : 'Kelebihan'}
-                </span>
-                <span
-                  className={
-                    remaining === 0
-                      ? 'text-primary'
-                      : 'font-medium text-destructive'
-                  }
-                >
-                  {formatIDR(Math.abs(remaining))}
-                </span>
-              </div>
-            </div>
-
-            {!shiftId && (
-              <p className="rounded-md border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm font-medium text-amber-600">
-                {shifts.length === 0
-                  ? 'Tidak ada shift open di outlet ini. Buka shift dulu sebelum checkout.'
-                  : 'Pilih shift open sebelum checkout.'}
-              </p>
-            )}
-
-            {checkoutError && (
-              <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
-                {checkoutError}
-              </p>
-            )}
-
-            <Button
-              className="w-full"
-              onClick={handleCheckout}
-              disabled={!canCheckout}
-            >
-              {submitting ? 'Memproses...' : `Bayar ${formatIDR(total)}`}
-            </Button>
+          {/* Cart — desktop side panel */}
+          <div className="hidden space-y-4 self-start rounded-lg border border-[var(--line)] bg-background p-4 lg:sticky lg:top-4 lg:block">
+            {renderCart()}
           </div>
         </div>
       )}
+
+      {/* Mobile cart: floating trigger + bottom sheet */}
+      {outletId ? (
+        <>
+          {cart.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => setCartOpen(true)}
+              className="fixed inset-x-4 bottom-4 z-40 flex items-center justify-between gap-3 rounded-xl bg-primary px-4 py-3 text-primary-foreground shadow-lg lg:hidden"
+            >
+              <span className="flex items-center gap-2 font-semibold">
+                <ShoppingCart className="size-5" />
+                Keranjang ({cartCount})
+              </span>
+              <span className="font-bold">{formatIDR(total)}</span>
+            </button>
+          ) : null}
+
+          <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+            <SheetContent
+              side="bottom"
+              className="max-h-[85vh] overflow-y-auto lg:hidden"
+            >
+              <SheetHeader>
+                <SheetTitle>Keranjang</SheetTitle>
+                <SheetDescription>
+                  Tinjau pesanan lalu lakukan pembayaran.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="space-y-4 px-4 pb-6">{renderCart()}</div>
+            </SheetContent>
+          </Sheet>
+        </>
+      ) : null}
     </div>
   )
 }
