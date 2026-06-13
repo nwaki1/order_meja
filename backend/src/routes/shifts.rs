@@ -1,4 +1,5 @@
 use crate::routes::shift_templates::parse_time;
+use crate::routes::shift_targets::split_bonus_even;
 use crate::{auth, AppError, AppState, Result};
 use axum::{
     extract::{Path, Query, State},
@@ -505,30 +506,124 @@ async fn open_shift(
     Ok(Json(fetch_shift(&state.db, id).await?))
 }
 
+// Closing a shift finalizes targets atomically: compute completed revenue,
+// record one result per active target, and (if achieved with a bonus) split the
+// bonus evenly across the shift's workers. A row lock makes double/concurrent
+// close safe; any failure rolls back the whole thing.
 async fn close_shift(
     user: auth::AuthUser,
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ShiftResponse>> {
     auth::require_permission(&user, "shifts:close")?;
-    let result = sqlx::query(
-        r#"
-        UPDATE shifts
-        SET status = 'closed', closed_at = NOW(), closed_by_user_id = $2, updated_at = NOW()
-        WHERE id = $1 AND status = 'open'
-        "#,
+
+    let mut tx = state.db.begin().await?;
+
+    let status = sqlx::query_scalar::<_, String>(
+        "SELECT status FROM shifts WHERE id = $1 FOR UPDATE",
     )
     .bind(id)
-    .bind(user.id)
-    .execute(&state.db)
-    .await?;
+    .fetch_optional(&mut *tx)
+    .await?
+    .ok_or_else(|| AppError::NotFound("Shift tidak ditemukan".into()))?;
 
-    if result.rows_affected() == 0 {
-        let (_, status) = shift_outlet_status(&state.db, id).await?;
+    if status != "open" {
         return Err(AppError::BadRequest(format!(
             "Shift hanya bisa di-close dari status open (status saat ini: {status})"
         )));
     }
+
+    // Completed revenue for this shift (cancelled transactions excluded).
+    let revenue = sqlx::query_scalar::<_, i64>(
+        r#"
+        SELECT COALESCE(SUM(total_amount), 0)::BIGINT
+        FROM transactions
+        WHERE shift_id = $1 AND status = 'completed'
+        "#,
+    )
+    .bind(id)
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let targets = sqlx::query_as::<_, (Uuid, i64, i64)>(
+        r#"
+        SELECT id, target_value, bonus_amount
+        FROM shift_targets
+        WHERE shift_id = $1 AND is_active = TRUE
+        "#,
+    )
+    .bind(id)
+    .fetch_all(&mut *tx)
+    .await?;
+
+    for (target_id, target_value, bonus_amount) in &targets {
+        let is_achieved = revenue >= *target_value;
+        let achievement = if *target_value > 0 {
+            revenue as f64 / *target_value as f64 * 100.0
+        } else {
+            0.0
+        };
+
+        sqlx::query(
+            r#"
+            INSERT INTO shift_target_results
+                (shift_target_id, actual_value, achievement_percentage, is_achieved)
+            VALUES ($1, $2, $3, $4)
+            "#,
+        )
+        .bind(target_id)
+        .bind(revenue)
+        .bind(achievement)
+        .bind(is_achieved)
+        .execute(&mut *tx)
+        .await?;
+
+        if is_achieved && *bonus_amount > 0 {
+            let worker_ids = sqlx::query_scalar::<_, Uuid>(
+                "SELECT worker_id FROM shift_workers WHERE shift_id = $1 ORDER BY worker_id ASC",
+            )
+            .bind(id)
+            .fetch_all(&mut *tx)
+            .await?;
+
+            if worker_ids.is_empty() {
+                return Err(AppError::BadRequest(
+                    "Tidak bisa close: target tercapai dengan bonus namun tidak ada worker pada shift".into(),
+                ));
+            }
+
+            let shares = split_bonus_even(*bonus_amount, worker_ids.len());
+            for (worker_id, amount) in worker_ids.iter().zip(shares) {
+                sqlx::query(
+                    r#"
+                    INSERT INTO worker_incentives (worker_id, shift_id, shift_target_id, amount)
+                    VALUES ($1, $2, $3, $4)
+                    "#,
+                )
+                .bind(worker_id)
+                .bind(id)
+                .bind(target_id)
+                .bind(amount)
+                .execute(&mut *tx)
+                .await?;
+            }
+        }
+    }
+
+    sqlx::query(
+        r#"
+        UPDATE shifts
+        SET status = 'closed', closed_at = NOW(), closed_by_user_id = $2, updated_at = NOW()
+        WHERE id = $1
+        "#,
+    )
+    .bind(id)
+    .bind(user.id)
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+
     Ok(Json(fetch_shift(&state.db, id).await?))
 }
 

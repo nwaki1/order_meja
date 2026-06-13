@@ -16,6 +16,7 @@ pub mod transactions;
 pub mod workers;
 pub mod shift_templates;
 pub mod shifts;
+pub mod shift_targets;
 
 use axum::Router;
 use crate::AppState;
@@ -44,7 +45,8 @@ pub fn api_router() -> Router<AppState> {
         .nest("/catalog", catalog::router())
         .nest("/pos", pos::router())
         .nest("/transactions", transactions::router())
-        .nest("/workers", workers::router())
+        .nest("/workers", workers::router().merge(shift_targets::worker_router()))
         .nest("/shift-templates", shift_templates::router())
-        .nest("/shifts", shifts::router())
+        .nest("/shifts", shifts::router().merge(shift_targets::shift_router()))
+        .nest("/shift-targets", shift_targets::router())
 }

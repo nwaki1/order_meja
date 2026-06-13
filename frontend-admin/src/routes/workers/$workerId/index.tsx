@@ -6,8 +6,12 @@ import { AdminBreadcrumbs } from '#/components/admin-breadcrumbs.tsx'
 import { useAuth } from '#/components/auth-provider.tsx'
 import { WorkerForm } from '#/components/worker-form.tsx'
 import { Button } from '#/components/ui/button.tsx'
+import { Input } from '#/components/ui/input.tsx'
+import { Label } from '#/components/ui/label.tsx'
 import { listOutlets } from '#/lib/outlets.ts'
 import type { Outlet } from '#/lib/outlets.ts'
+import { listWorkerIncentives } from '#/lib/shift-targets.ts'
+import type { WorkerIncentive } from '#/lib/shift-targets.ts'
 import {
   assignOutletWorker,
   deactivateWorker,
@@ -20,6 +24,14 @@ import type { Worker } from '#/lib/workers.ts'
 export const Route = createFileRoute('/workers/$workerId/')({
   component: WorkerDetailPage,
 })
+
+function formatIDR(value: number): string {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(value)
+}
 
 function WorkerDetailPage() {
   const { workerId } = Route.useParams()
@@ -44,6 +56,40 @@ function WorkerDetailPage() {
 
   const [confirmDelete, setConfirmDelete] = React.useState(false)
   const [deleting, setDeleting] = React.useState(false)
+
+  const canReadIncentives = hasPermission('worker_incentives:read')
+  const [incentives, setIncentives] = React.useState<WorkerIncentive[]>([])
+  const [incentiveTotal, setIncentiveTotal] = React.useState(0)
+  const [dateFrom, setDateFrom] = React.useState('')
+  const [dateTo, setDateTo] = React.useState('')
+
+  React.useEffect(() => {
+    if (!accessToken || !canReadIncentives) return
+    let cancelled = false
+    listWorkerIncentives(accessToken, workerId, {
+      $top: 100,
+      $skip: 0,
+      $count: true,
+      date_from: dateFrom || undefined,
+      date_to: dateTo || undefined,
+    })
+      .then((res) => {
+        if (!cancelled) {
+          const rows = res.value ?? []
+          setIncentives(rows)
+          setIncentiveTotal(rows.reduce((sum, i) => sum + i.amount, 0))
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setIncentives([])
+          setIncentiveTotal(0)
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [accessToken, workerId, canReadIncentives, dateFrom, dateTo])
 
   React.useEffect(() => {
     if (!accessToken) return
@@ -306,6 +352,101 @@ function WorkerDetailPage() {
                       </tr>
                     )
                   })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {canReadIncentives && (
+        <div className="space-y-4 rounded-lg border border-[var(--line)] bg-background p-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--sea-ink)]">
+                Riwayat Insentif
+              </h3>
+              <p className="text-xs text-[var(--sea-ink-soft)]">
+                Total periode: {formatIDR(incentiveTotal)}
+              </p>
+            </div>
+            <div className="flex items-end gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs text-[var(--sea-ink-soft)]">
+                  Dari
+                </Label>
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="w-40"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-[var(--sea-ink-soft)]">
+                  Sampai
+                </Label>
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="w-40"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-[var(--line)]">
+            <table className="w-full text-sm">
+              <thead className="border-b border-[var(--line)] bg-muted/40">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">
+                    Tanggal
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">
+                    Shift
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">
+                    Outlet
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">
+                    Target
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">
+                    Insentif
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--line)]">
+                {incentives.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="px-4 py-8 text-center text-[var(--sea-ink-soft)]"
+                    >
+                      Belum ada insentif.
+                    </td>
+                  </tr>
+                ) : (
+                  incentives.map((i) => (
+                    <tr key={i.id} className="bg-background">
+                      <td className="px-4 py-3 text-[var(--sea-ink-soft)]">
+                        {i.work_date}
+                      </td>
+                      <td className="px-4 py-3 text-[var(--sea-ink)]">
+                        {i.shift_name}
+                      </td>
+                      <td className="px-4 py-3 text-[var(--sea-ink-soft)]">
+                        {i.outlet_name}
+                      </td>
+                      <td className="px-4 py-3 text-right text-[var(--sea-ink-soft)]">
+                        {formatIDR(i.target_value)}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-[var(--sea-ink)]">
+                        {formatIDR(i.amount)}
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
